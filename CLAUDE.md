@@ -2,104 +2,118 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## 이 저장소가 무엇인가
+A Korean translation lives in [CLAUDE.ko.md](CLAUDE.ko.md). **This English file is the source of truth** — change it first, then mirror the change there.
 
-`vibe-workflow` Claude Code 플러그인의 소스다. 여기서 만드는 것은 **다른 프로젝트에 설치될 워크플로우 시스템**이다.
-이 저장소 자체는 그 워크플로우의 적용 대상이 아니다 (`.workflow/` 가 없다).
+## What this repository is
 
-## 명령
+This is the source of the `vibe-workflow` Claude Code plugin. What gets built here is **a workflow system meant to be installed into other projects**.
+This repository is not itself a target of that workflow (there is no `.workflow/` here).
 
-의존성도 빌드도 테스트 프레임워크도 없다. 순수 node 내장 모듈만 쓴다.
+## Commands
+
+No dependencies, no build step, no test framework. Node built-ins only.
 
 ```bash
-# JSON 매니페스트 검증 (깨지면 모든 설정이 조용히 무시되므로 필수)
+# Validate the JSON manifests (a broken one is silently ignored, so this is mandatory)
 node -e "JSON.parse(require('fs').readFileSync('.claude-plugin/marketplace.json','utf8'))"
 node -e "JSON.parse(require('fs').readFileSync('plugins/vibe-workflow/.claude-plugin/plugin.json','utf8'))"
 node -e "JSON.parse(require('fs').readFileSync('plugins/vibe-workflow/hooks/hooks.json','utf8'))"
 
-# 훅 파이프 테스트 — 등록 전에 반드시 한다
+# Pipe-test the hooks — always do this before registering them
 H=plugins/vibe-workflow/hooks
-echo '{"tool_name":"Edit","tool_input":{"file_path":"/절대/경로/src/a.ts"}}' | node $H/gate-write.js
+echo '{"tool_name":"Edit","tool_input":{"file_path":"/absolute/path/src/a.ts"}}' | node $H/gate-write.js
 echo '{}' | node $H/gate-stop.js
 echo '{}' | node $H/inject-phase.js
 
-# wfctl 수동 구동 (임시 디렉터리에서)
+# Drive wfctl by hand (from a scratch directory)
 node plugins/vibe-workflow/scripts/wfctl.js init
 node plugins/vibe-workflow/scripts/wfctl.js status
 
-# 로컬 설치 테스트 (설치 없이 로드)
+# Local install test (load without installing)
 claude --plugin-dir "$(pwd)/plugins/vibe-workflow"
 
-# 매니페스트가 실제로 로드되는지 검증 — JSON 문법 검사만으로는 못 잡는다
+# Verify the manifest actually loads — a JSON syntax check cannot catch this
 claude --plugin-dir "$(pwd)/plugins/vibe-workflow" plugin details vibe-workflow
 
-# 실제 설치 (로컬 경로는 './' 형태여야 한다)
+# Real install (a local path must be given in './' form)
 claude plugin marketplace add ./
 claude plugin install vibe-workflow@vibe-workflow
-claude plugin list          # Status 가 enabled 인지 확인. 로드 실패도 여기 뜬다
+claude plugin list          # Confirm Status is enabled. Load failures also surface here
 ```
 
-**`plugin.json` 에 `"hooks"` 필드를 넣지 마라.** `hooks/hooks.json` 은 자동으로 로드된다.
-매니페스트에서 또 참조하면 `Duplicate hooks file detected` 로 플러그인 전체가 로드 실패한다.
-`manifest.hooks` 는 표준 경로 **외의** 추가 훅 파일을 가리킬 때만 쓴다.
-이 오류는 JSON 문법 검사로는 안 잡히고 `claude plugin list` 의 Status 에서만 드러난다.
+**Do not put a `"hooks"` field in `plugin.json`.** `hooks/hooks.json` is loaded automatically.
+Referencing it again from the manifest fails the whole plugin with `Duplicate hooks file detected`.
+Use `manifest.hooks` only to point at additional hook files **outside** the standard path.
+A JSON syntax check will not catch this error; it shows up only in the Status column of `claude plugin list`.
 
-훅을 고친 뒤에는 **파이프 테스트로 차단·허용 두 경로를 모두 확인한다.**
-허용 경로에서 출력이 비어 있는지 반드시 본다 — 여기서 잘못 출력하면 정상 작업이 전부 막힌다.
+After changing a hook, **verify both the blocking path and the allowing path with a pipe test.**
+Always confirm the allowing path produces empty output — emitting the wrong thing there blocks all normal work.
 
-## 아키텍처
+## Architecture
 
-### 상태 모델
+### State model
 
-단일 진실 원천은 대상 프로젝트의 `.workflow/state.json` 이고, 담는 것은 `phase` 와 `task` 뿐이다.
+The single source of truth is `.workflow/state.json` in the target project, and it holds nothing but `phase` and `task`.
 
-**게이트 통과 여부는 state.json에 저장하지 않는다.** 매번 산출물 파일에서 파생시킨다:
+**Gate results are never stored in state.json.** They are derived from the artifact files every time:
 
-- 계획 승인 = `tasks/<id>/review.md` 의 `<!-- wf:review ... decision: approved -->` 마커
-- 검증 통과 = `tasks/<id>/verify.md` 의 `<!-- wf:verify ... -->` 마커에서, config에 켜진 항목이 전부 `pass`
+- Plan approval = the `<!-- wf:review ... decision: approved -->` marker in `tasks/<id>/review.md`
+- Verification passed = in the `<!-- wf:verify ... -->` marker of `tasks/<id>/verify.md`, every item enabled in config reads `pass`
 
-이 설계 때문에 상태와 실제가 어긋날 수 없다. 새 게이트를 추가할 때도 같은 원칙을 지킨다 — 판정 결과를 캐시하지 마라.
+This design makes state drift impossible. Keep the same principle when adding a new gate — never cache a decision.
 
-### 계층
+### Layers
 
 ```
-hooks/lib/wf.js          모든 판정 로직의 단일 위치
+hooks/lib/wf.js          the single home of all decision logic
    ↑ require
-hooks/*.js               얇은 어댑터 (stdin 읽기 → wf.js 판정 → stdout)
-scripts/wfctl.js         같은 wf.js 를 써서 사람/스킬이 상태를 바꾼다
+hooks/*.js               thin adapters (read stdin → wf.js decides → stdout)
+scripts/wfctl.js         uses that same wf.js so humans and skills can change state
 ```
 
-**판정 로직은 반드시 `wf.js` 에 둔다.** 훅과 wfctl이 서로 다른 판단을 하면 이중 방어가 깨진다.
-예: `wfctl phase build` 는 `reviewStatus()` 로 거부하고, `gate-write.js` 도 같은 `reviewStatus()` 로 차단한다.
+**Decision logic must live in `wf.js`.** If the hooks and wfctl judge differently, the double defense breaks.
+Example: `wfctl phase build` refuses via `reviewStatus()`, and `gate-write.js` blocks via the very same `reviewStatus()`.
 
-### 훅 4종의 역할 분담
+### What each of the four hooks does
 
-| 파일 | 이벤트 | 책임 |
+| File | Event | Responsibility |
 | --- | --- | --- |
-| `gate-write.js` | PreToolUse | 유일하게 `deny`/`ask` 를 내는 곳 |
-| `mark-dirty.js` | PostToolUse | `dirty.txt` 에 수정 소스 축적 — Stop 게이트의 입력 |
-| `inject-phase.js` | UserPromptSubmit | 단계별 규약 텍스트 (`RULES` 상수) |
-| `gate-stop.js` | Stop | `dirty.txt` 비어있지 않음 + verify 미통과 → block |
+| `gate-write.js` | PreToolUse | The only place that emits `deny`/`ask` |
+| `mark-dirty.js` | PostToolUse | Accumulates edited sources into `dirty.txt` — the input to the Stop gate |
+| `inject-phase.js` | UserPromptSubmit | Per-phase rule text (the `RULES` constant) |
+| `gate-stop.js` | Stop | `dirty.txt` non-empty + verify not passed → block |
 
-`gate-write.js` 의 판정 순서에 의미가 있다. 승인 문서 `ask` 승격이 문서 경로 허용보다 **먼저** 와야 한다 — 순서를 바꾸면 `review.md` 가 `docGlobs` 의 `**/*.md` 에 걸려 그냥 통과한다.
+The order of checks in `gate-write.js` is meaningful. Promoting approval documents to `ask` must come **before** the doc-path allowance — reverse them and `review.md` matches `**/*.md` in `docGlobs` and simply passes through.
 
-### 훅 작성 규약
+### Hook authoring rules
 
-- **모든 경로에서 `exit 0`.** `wf.emit()` 을 쓰고, `main()` 을 `try/catch` 로 감싼다. 훅 오류가 작업을 막으면 사용자는 훅을 꺼버린다.
-- **무간섭 = 무출력.** `wf.emit(null)`.
-- **`jq` 를 쓰지 마라.** 이 환경에 없다. stdin JSON은 `wf.readStdin()` 으로 읽는다.
-- **`hooks.json` 은 `args` 배열 형식.** 셸을 거치지 않아 공백 든 Windows 경로에서 안전하다.
-- 차단 사유에는 **해법을 함께 적는다.** "금지됨"만으로는 모델이 헤맨다.
-- `Stop` 훅에서 `decision: block` 을 쓸 때는 `stop_hook_active` 확인 + 횟수 상한 (`gate-stop.js` 의 `MAX_BLOCKS_PER_TASK`).
+- **`exit 0` on every path.** Use `wf.emit()` and wrap `main()` in `try/catch`. If a hook error blocks work, users will just turn hooks off.
+- **No interference means no output.** `wf.emit(null)`.
+- **Do not use `jq`.** It is not available in this environment. Read stdin JSON with `wf.readStdin()`.
+- **`hooks.json` uses the `args` array form.** It bypasses the shell, which keeps Windows paths containing spaces safe.
+- **State the remedy alongside the reason for blocking.** "Not allowed" on its own leaves the model stuck.
+- When using `decision: block` in a `Stop` hook, check `stop_hook_active` and cap the retries (`MAX_BLOCKS_PER_TASK` in `gate-stop.js`).
 
-### 경로 처리
+### Path handling
 
-Windows 대상이므로 `wf.norm()` 으로 역슬래시→슬래시 + 소문자 정규화한 뒤 비교한다.
-글롭 매처는 `wf.globToRe()` 자체 구현이다 (`**/`, `**`, `*`, `?` 지원). 의존성을 추가하지 마라.
+This targets Windows, so normalize with `wf.norm()` (backslash to slash, lowercased) before comparing.
+The glob matcher is our own `wf.globToRe()` (it supports `**/`, `**`, `*`, `?`). Do not add a dependency.
 
-### 마커 형식
+### Time handling
 
-산출물 문서의 기계 판독용 블록은 HTML 주석이다. 사람이 읽는 문서 안에 있어도 렌더링에 방해되지 않는다.
+Do not mix stored values with displayed values.
+
+- **Storage, comparison, and expiry decisions use UTC ISO** (`new Date().toISOString()`).
+  That covers `updated` in `state.json`, `gate.log`, and `until`/`at` in `override.json`.
+- **Dates and times a human reads use the local timezone.** Use `wf.localDate()` / `wf.localStamp()`.
+  That covers `{{DATE}}` in the document templates and the override expiry notice.
+
+Using `toISOString().slice(0, 10)` for a human-facing date is UTC-based and lands a day off.
+There was a real bug where documents created between 00:00 and 09:00 KST carried the previous day's date.
+
+### Marker format
+
+Machine-readable blocks in artifact documents are HTML comments. They sit inside human-readable documents without disturbing rendering.
 
 ```
 <!-- wf:review
@@ -108,19 +122,45 @@ decision: approved
 -->
 ```
 
-`wf.readMarker(file, kind)` 로 파싱한다. 새 산출물을 추가하면 같은 형식을 쓴다.
+Parse them with `wf.readMarker(file, kind)`. Use the same format for any new artifact.
 
-## 스킬 작성 규약
+## Code rules
 
-- 스킬 본문에서 `wfctl` 은 `node "${CLAUDE_PLUGIN_ROOT}/scripts/wfctl.js"` 로 호출한다
-- 스킬이 `state.json` 을 직접 편집하게 하지 마라 — 반드시 `wfctl` 을 거친다
-- `frontmatter` 의 `description` 에 **사용자가 실제로 쓸 법한 한국어 표현**을 넣는다 (모델이 이걸로 스킬을 고른다)
-- 사람의 판단이 필요한 지점은 `AskUserQuestion` 을 명시적으로 지시한다. "사용자에게 물어라"만으로는 건너뛴다
+### Size limits
 
-## 강제의 한계 (문서에 반드시 유지할 것)
+Split when exceeded: 300 lines per file, 50 lines per function, 5 parameters, 10 branches per function.
 
-훅은 파일 내용만 보고 **누가 썼는지 알 수 없다.** 따라서 "사람이 승인했다"는 사실 자체는 강제 불가다.
-현재 구조의 대안은 승인 문서 쓰기를 `permissionDecision: "ask"` 로 승격시켜 실제 권한 프롬프트를 띄우는 것이다.
-`bypassPermissions` / `dontAsk` 모드에서는 이마저 무력하다.
+**There is exactly one exception: `main()` in `gate-write.js`** (83 lines / 19 branches).
+In that function the order of checks is itself the rule, so breaking it into helpers hides that order from the call site.
+Do not split it. And do not cite this exception as precedent anywhere else.
 
-이 한계를 README에서 지우지 마라. 강제되지 않는 것을 강제된다고 적으면 시스템 전체의 신뢰가 무너진다.
+`wfctl.js` is over the limit at 343 lines. When adding a command, consider splitting the file first.
+
+### Verification
+
+**Do not introduce a test framework.** Having no dependencies is a constraint of this plugin.
+Verify new code with pipe tests and by driving `wfctl` by hand (see the `## Commands` section).
+When you change a hook, check **both** the blocking path and the allowing path. Always confirm the allowing path emits nothing.
+
+### Style
+
+- Give constants names (`MAX_BLOCKS_PER_TASK`, `PHASE_MSG`, `ORDER`). Never put literals directly into a decision.
+- Write guard clauses first. The standard hook shape is "if the input is not our concern, `wf.emit(null)` immediately".
+- Keep side effects (file writes, stdout) at the edge. Decision functions in `wf.js` answer from their input alone.
+- Catch specific exceptions. The top-level `try/catch` in a hook is the deliberate exception — it must `exit 0` on any error.
+- Names reveal intent. Abstract only after the same thing has appeared three times.
+
+## Skill authoring rules
+
+- In skill bodies, invoke `wfctl` as `node "${CLAUDE_PLUGIN_ROOT}/scripts/wfctl.js"`
+- Never let a skill edit `state.json` directly — it must go through `wfctl`
+- Put **Korean phrasing that users would actually type** into the `description` in the frontmatter (the model selects skills by it)
+- Where human judgment is required, instruct `AskUserQuestion` explicitly. "Ask the user" on its own gets skipped
+
+## Limits of enforcement (keep this in the documentation)
+
+A hook sees only file contents and **cannot know who wrote them.** So the fact that "a human approved" is not itself enforceable.
+Within the current structure, the alternative is to promote writes to approval documents to `permissionDecision: "ask"` so that a real permission prompt appears.
+In `bypassPermissions` / `dontAsk` mode even that is powerless.
+
+Do not delete this limitation from the README. Documenting something as enforced when it is not destroys trust in the entire system.
