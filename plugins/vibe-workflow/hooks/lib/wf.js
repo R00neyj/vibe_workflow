@@ -84,6 +84,27 @@ function toRel(root, abs) {
   return rel.replace(/\\/g, '/')
 }
 
+// --- 시간 표기 ----------------------------------------------------------
+// 저장값(state.updated / gate.log / override.until)은 비교와 만료 계산에 쓰이므로
+// UTC ISO 를 유지한다. 사람이 읽는 날짜·시각만 로컬 시간대로 표기한다.
+// getFullYear/getDate/getHours 는 로컬 기준이라 DST 전환을 그대로 따른다.
+
+function pad2(n) { return String(n).padStart(2, '0') }
+
+/** 사람이 읽는 날짜(YYYY-MM-DD)를 로컬 시간대로. 문서의 작성일/검토일에 쓴다. */
+function localDate(value) {
+  const d = value === undefined ? new Date() : new Date(value)
+  if (isNaN(d.getTime())) return String(value)
+  return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate())
+}
+
+/** 사람이 읽는 시각(YYYY-MM-DD HH:MM)을 로컬 시간대로. 우회 만료 안내에 쓴다. */
+function localStamp(value) {
+  const d = value === undefined ? new Date() : new Date(value)
+  if (isNaN(d.getTime())) return String(value)
+  return localDate(d) + ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes())
+}
+
 // --- 상태 / 설정 --------------------------------------------------------
 
 function wfDir(root) { return path.join(root, '.workflow') }
@@ -249,6 +270,8 @@ module.exports = {
   toRel: toRel,
   matchAny: matchAny,
   norm: norm,
+  localDate: localDate,
+  localStamp: localStamp,
   wfDir: wfDir,
   readState: readState,
   writeState: writeState,
