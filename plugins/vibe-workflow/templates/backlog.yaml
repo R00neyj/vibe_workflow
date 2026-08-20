@@ -1,0 +1,19 @@
+# 백로그 — {{PROJECT}}
+# 각 항목은 독립적으로 검증 가능한 크기여야 한다.
+# 한 항목이 여러 날 걸릴 것 같으면 더 쪼갠다.
+
+version: 1
+items:
+  - id: B-001
+    title: ""
+    # 이 항목이 없으면 무엇이 안 되는가
+    why: ""
+    # 무엇이 참이면 완료인가 (관찰 가능하게)
+    done_when:
+      - ""
+    # blocked_by 가 비어야 착수 가능
+    blocked_by: []
+    # todo | planned | building | done
+    status: todo
+    # 착수 시 생성된 task id
+    task: null

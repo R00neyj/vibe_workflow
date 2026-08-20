@@ -1,0 +1,16 @@
+{
+  "name": "vibe-workflow",
+  "owner": {
+    "name": "R00neyj",
+    "email": "yjw1555@gmail.com",
+    "url": "https://github.com/R00neyj"
+  },
+  "plugins": [
+    {
+      "name": "vibe-workflow",
+      "source": "./plugins/vibe-workflow",
+      "description": "define -> plan -> review -> build -> verify 파이프라인을 스킬로 제공하고 훅으로 강제하는 바이브코딩 워크플로우",
+      "version": "0.1.0"
+    }
+  ]
+}

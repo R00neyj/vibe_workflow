@@ -1,0 +1,11 @@
+{
+  "name": "vibe-workflow",
+  "version": "0.1.0",
+  "description": "바이브코딩을 define -> plan -> review -> build -> verify 상태머신으로 고정한다. 각 단계는 스킬로, 단계 전이 규약은 결정론적 훅으로 강제된다.",
+  "author": {
+    "name": "R00neyj",
+    "email": "yjw1555@gmail.com",
+    "url": "https://github.com/R00neyj"
+  },
+  "homepage": "https://github.com/R00neyj/vibe_workflow"
+}
