@@ -80,7 +80,7 @@ function main() {
   }
 
   const ov = wf.overrideActive(root)
-  if (ov) lines.push('- [경고] 게이트 우회가 활성 상태다(' + ov.until + '). 사유: ' + (ov.reason || '미기재'))
+  if (ov) lines.push('- [경고] 게이트 우회가 활성 상태다(' + wf.localStamp(ov.until) + '). 사유: ' + (ov.reason || '미기재'))
 
   return wf.emit({
     hookSpecificOutput: {

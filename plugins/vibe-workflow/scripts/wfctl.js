@@ -93,7 +93,7 @@ function cmdInit(args) {
     ['dirty.txt', 'gate.log', 'stopguard.json', 'override.json', 'tasks/*/checks.json', ''].join('\n')
   )
 
-  const stamp = new Date().toISOString().slice(0, 10)
+  const stamp = wf.localDate()
   for (const t of [
     ['requirements.md', 'requirements.md'],
     ['architecture.md', 'architecture.md'],
@@ -125,7 +125,7 @@ function cmdStatus() {
   console.log('계획 승인  : ' + rs)
   console.log('검증       : ' + (vs ? (vs.ok ? 'ok' : '미완료 [' + [].concat(vs.missing, vs.failed).join(', ') + ']') : '-'))
   console.log('수정된 소스: ' + dirty.length + '개' + (dirty.length ? ' (' + dirty.slice(0, 5).join(', ') + ')' : ''))
-  console.log('게이트 우회: ' + (ov ? '활성 ~' + ov.until + ' / ' + (ov.reason || '') : '없음'))
+  console.log('게이트 우회: ' + (ov ? '활성 ~' + wf.localStamp(ov.until) + ' / ' + (ov.reason || '') : '없음'))
   const enabled = Object.keys(cfg.checks).filter(function (k) { return cfg.checks[k].enabled })
   console.log('자동 체크  : ' + (enabled.length ? enabled.join(', ') : '없음'))
 }
@@ -183,7 +183,7 @@ function cmdTaskNew(args) {
   if (!title) die('사용법: wfctl task-new "<작업 제목>"')
   const id = nextTaskId(r)
   const dest = path.join(wf.taskDir(r, id), 'plan.md')
-  copyTemplate('plan.md', dest, { TASK: id, TITLE: title, DATE: new Date().toISOString().slice(0, 10) })
+  copyTemplate('plan.md', dest, { TASK: id, TITLE: title, DATE: wf.localDate() })
   wf.writeState(r, { phase: 'plan', task: id })
   wf.clearDirty(r)
   console.log('task 생성: ' + id + ' — ' + title)
@@ -273,7 +273,7 @@ function cmdOverride(args) {
     JSON.stringify({ until: until, reason: reason, at: new Date().toISOString() }, null, 2) + '\n'
   )
   wf.log(r, 'OVERRIDE-OPEN', minutes + '분\t' + reason)
-  console.log('게이트 우회를 ' + minutes + '분간 연다 (~' + until + ')')
+  console.log('게이트 우회를 ' + minutes + '분간 연다 (~' + wf.localStamp(until) + ')')
   console.log('사유: ' + reason)
   console.log('우회 중 쓰기는 .workflow/gate.log 에 기록된다. 끝나면 `wfctl override-clear`.')
 }
