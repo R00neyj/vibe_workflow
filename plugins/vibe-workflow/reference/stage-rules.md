@@ -68,6 +68,7 @@ The user must be able to read a document in 1-2 minutes. A long document goes un
 - Use only its tokens and components. Never hardcode a color, size, spacing, radius, shadow or duration that is not a token.
 - Need something new → add it to DESIGN.md (table row + Change log line), then use it. A new variant or token is a medium change: do it, no question. Changing a core token (primary color, font) that touches every screen is large: ask once.
 - Code tokens mirror DESIGN.md names (e.g. `color.primary` → `--color-primary`). If code and DESIGN.md drift, fix the code to match, or ask which one is right.
+- Avoid AI-slop defaults: follow `ui-anti-slop.md` (same folder as this file). An item from it is allowed only when DESIGN.md lists it as a deliberate exception.
 - Link to it from stage docs as `[DESIGN.md](../DESIGN.md)`.
 
 ## Doc involvement level — docs never block code

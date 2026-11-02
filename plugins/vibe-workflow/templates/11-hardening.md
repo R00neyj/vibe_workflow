@@ -32,6 +32,7 @@ status: draft
 | Access | keyboard reachable, labels on inputs, contrast per DESIGN.md | | |
 | Performance | first screen loads in an acceptable time on a mid device | | |
 | Design | no raw colors/sizes outside tokens; components match DESIGN.md | | |
+| Anti-slop | detection searches clean, or each hit is a DESIGN.md deliberate exception | | |
 
 ## Issues
 

@@ -23,7 +23,7 @@ Before starting, Read `${CLAUDE_PLUGIN_ROOT}/reference/stage-rules.md` and follo
 3. **Build order** — start with the core features' task paths. Finish one path end to end before the next.
 4. **Implement** — follow the wireframes' layout and transitions and the DESIGN.md components.
 5. **Run check** — after each path, actually launch the app and verify. Fill the run command in `run` and the check commands in `checks` of `.workflow/config.json`. Run `WFCTL check`.
-6. **Design check** — capture each core screen (browser tool if available, otherwise ask the user for screenshots) and compare against DESIGN.md and the wireframe. Fill the `Design check` table; fix what is off, or update DESIGN.md if the change is intended.
+6. **Design check** — capture each core screen (browser tool if available, otherwise ask the user for screenshots) and compare against DESIGN.md, the wireframe and `${CLAUDE_PLUGIN_ROOT}/reference/ui-anti-slop.md`. Slop not listed as a deliberate exception counts as a mismatch. Fill the `Design check` table; fix what is off, or update DESIGN.md if the change is intended.
 7. **Record** — in `09-prototype.md`: how to run, implementation scope table, deviations from the wireframes. Keep it short.
 
 ## User requests mid-stage

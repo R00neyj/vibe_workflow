@@ -90,6 +90,7 @@ scripts/wfctl.js         CLI: init / status [--json] / sync / new / screen / che
 hooks/register.tsx       progress panel mod (UI only), reads wfctl status --json
 types/index.d.ts         the mod's $.state contract
 reference/stage-rules.md shared rules every stage skill reads first
+reference/ui-anti-slop.md AI-slop UI checklist read by stages 4, 5, 9, 11 (paraphrased from impeccable / taste-skill / zero-slop; keep the Sources credits)
 skills/wf-*/SKILL.md     one skill per stage + wf-init + wf-next (router) + wf-progress (show only)
 templates/               hub, stage documents, wireframe HTML/CSS
 ```

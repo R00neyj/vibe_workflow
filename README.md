@@ -39,6 +39,8 @@ In lite mode the neighbouring skills absorb the essentials: `/wf-design` asks fo
 
 `/wf-design` writes `DESIGN.md` at the project root right after the UI references: semantic tokens (color, typography, spacing, radius, shadow, motion, breakpoints) and component definitions (variants, states, tokens used, screens).
 It never "finishes". The wireframe labels boxes with its component names, the prototype turns its tokens into code first, and every later UI fix (hardening, usability, internal test, ad-hoc requests) reads it first and uses only its tokens and components. New tokens and components are added there, with a Change log line, before they are used.
+**No AI slop.** [`reference/ui-anti-slop.md`](plugins/vibe-workflow/reference/ui-anti-slop.md) lists the default look models fall into — Inter-everything, purple gradients, glass cards, icon-tile feature rows, "seamless" copy — with an alternative for each and grep-able detection searches. References (4), DESIGN.md (5), the prototype design check (9) and hardening (11) apply it; a listed pattern is allowed only as a DESIGN.md `Deliberate exception` with a reason. Distilled from [impeccable](https://github.com/pbakaus/impeccable), [taste-skill](https://github.com/Leonxlnx/taste-skill) and [zero-slop](https://github.com/Eid0lon/zero-slop).
+
 Optionally `/wf-design` adds one line to the project's `CLAUDE.md` so UI work outside the stages also reads it.
 
 No need to memorize stage names. Say **"next step"** and `/wf-next` looks at where you are and continues.
@@ -192,6 +194,7 @@ If `deploy` is empty, the skill guides a manual deploy and only records the resu
 plugins/vibe-workflow/
 ├── .claude-plugin/plugin.json
 ├── reference/stage-rules.md    Rules shared by stage skills (doc structure, length, involvement level, links)
+├── reference/ui-anti-slop.md   AI-slop UI patterns, alternatives, detection searches
 ├── hooks/register.tsx          Progress panel mod (read-only UI)
 ├── types/index.d.ts            Panel state type contract
 ├── scripts/wfctl.js            CLI

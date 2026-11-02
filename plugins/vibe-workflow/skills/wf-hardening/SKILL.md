@@ -19,7 +19,7 @@ Usability proved people can use it; this stage proves it works and holds up.
 
 1. **Acceptance criteria** — copy every Must criterion into the table. Verify each by actually running something (a test, a command, or the app) and write how. **Never write `pass` for something you did not run.** If it cannot be automated, give the user exact steps and get the result via `AskUserQuestion`.
 2. **Hardening checklist** — go through each area in the template. Fix what fails; log what remains as H-xx with severity.
-3. **Design consistency** — search the UI code for raw colors, sizes and durations outside the token file; replace them with tokens or add the token to `DESIGN.md`.
+3. **Design consistency and anti-slop** — run the Detection searches in `${CLAUDE_PLUGIN_ROOT}/reference/ui-anti-slop.md` (adapted to the stack). Replace raw values with tokens; fix every slop hit or list it under DESIGN.md `Deliberate exceptions` with a reason.
 4. **Checks** — `WFCTL check`. If there are no automated checks yet, add at least one (build or a smoke test) and register it in `config.json`.
 5. Fix from high severity down. Large changes follow the common rules' `Doc involvement level`.
 

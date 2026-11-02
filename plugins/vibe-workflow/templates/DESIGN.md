@@ -69,6 +69,18 @@ Code uses these names, never raw values.
 - Empty / loading / error states:
 - Forms:
 
+## Avoid
+
+AI-slop defaults this product is most likely to fall into (from the anti-slop checklist):
+
+-
+
+### Deliberate exceptions
+
+| Pattern | Why it fits this product |
+| --- | --- |
+| | |
+
 ## Change log
 
 | Date | Change | Why |

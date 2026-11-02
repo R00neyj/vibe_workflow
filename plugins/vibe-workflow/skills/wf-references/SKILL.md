@@ -17,6 +17,8 @@ The brief's reference research compares services. This stage is screen-level: ho
 
 ## Steps
 
+Also Read `${CLAUDE_PLUGIN_ROOT}/reference/ui-anti-slop.md`. References that are themselves slop (purple gradients, glass cards, icon-tile feature rows) do not count; say why when you drop one.
+
 1. **Ask first** — `AskUserQuestion`: references the user already has (links, screenshots, apps they like) and the platform (mobile web / desktop web / native app).
 2. **Search per screen** — core screens first. 1–3 references each from real products and galleries (e.g. Mobbin, Page Flows, Dribbble, Behance, the reference services in the brief). Use web search; if a browser tool is available, capture the screen into `.workflow/04-references/<slug>-<n>.png`. Without tools, ask the user for links or captures.
 3. **Record** — one row per reference: service · screen, link or capture, **what to borrow** (one line), type (layout / component / interaction / visual). No reference without a "borrow" line.

@@ -7,7 +7,7 @@ const path = require('path')
 const cp = require('child_process')
 const wf = require('./lib/wf.js')
 
-const VERSION = '0.5.0'
+const VERSION = '0.6.0'
 const CHECK_TIMEOUT_MS = 15 * 60 * 1000
 const OUTPUT_TAIL_LINES = 25
 const SLUG_RE = /^[a-z0-9][a-z0-9-]*$/

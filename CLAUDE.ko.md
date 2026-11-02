@@ -90,6 +90,7 @@ scripts/wfctl.js         CLI: init / status [--json] / sync / new / screen / che
 hooks/register.tsx       진행 패널 mod (UI 전용), wfctl status --json 을 읽는다
 types/index.d.ts         mod 의 $.state 계약
 reference/stage-rules.md 모든 단계 스킬이 먼저 읽는 공통 규약
+reference/ui-anti-slop.md 4·5·9·11단계가 읽는 AI 슬롭 UI 체크리스트 (impeccable / taste-skill / zero-slop 을 의역, Sources 출처 표기 유지)
 skills/wf-*/SKILL.md     단계마다 스킬 하나 + wf-init + wf-next(라우터) + wf-progress(보기 전용)
 templates/               허브, 단계 문서, 와이어프레임 HTML/CSS
 ```

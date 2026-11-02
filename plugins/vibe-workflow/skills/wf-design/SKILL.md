@@ -17,6 +17,8 @@ Before starting, Read `${CLAUDE_PLUGIN_ROOT}/reference/stage-rules.md` and follo
 
 ## Steps
 
+Read `${CLAUDE_PLUGIN_ROOT}/reference/ui-anti-slop.md` first. Every key choice must come from this product's domain, not from defaults.
+
 In lite mode (no stage 4), first ask via `AskUserQuestion` for 1–2 apps or sites whose look the user likes, and derive the direction from them.
 
 
@@ -24,8 +26,9 @@ In lite mode (no stage 4), first ask via `AskUserQuestion` for 1–2 apps or sit
 2. **Tokens** — fill the token tables with semantic names (`color.primary`, not `blue-500`) and real values. Check text/background contrast is at least 4.5:1 and fix pairs that fail.
 3. **Components** — inventory the UI elements the screens need (from flow + spec). Only what screens use. Each row: purpose, variants, states (always include disabled / error / loading where they apply), tokens used, screens.
 4. **Patterns** — layout grid, empty/loading/error states, forms. One line each.
-5. **Keep it referenced** — `AskUserQuestion`: "Add a line to the project CLAUDE.md so every UI change reads DESIGN.md? / No". If yes, add one line: `UI work: read DESIGN.md first; use only its tokens and components, and log new ones there.`
-6. Keep it within about 100 lines. Tables, no prose.
+5. **Avoid** — fill the `Avoid` section: the anti-slop items most tempting for this product, and `Deliberate exceptions` only with a product-specific reason.
+6. **Keep it referenced** — `AskUserQuestion`: "Add a line to the project CLAUDE.md so every UI change reads DESIGN.md? / No". If yes, add one line: `UI work: read DESIGN.md first; use only its tokens and components, and log new ones there.`
+7. Keep it within about 100 lines. Tables, no prose.
 
 ## Later changes (any stage)
 
