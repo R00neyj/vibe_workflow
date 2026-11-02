@@ -21,4 +21,4 @@ Before starting, Read `${CLAUDE_PLUGIN_ROOT}/reference/stage-rules.md` and follo
 
 ## Done
 
-After user confirmation: `status: done` → Decision log → `WFCTL sync` → `/wf-wireframe`.
+After user confirmation: `status: done` → Decision log → `WFCTL sync` → `/wf-references`.

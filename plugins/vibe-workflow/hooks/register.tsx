@@ -129,7 +129,7 @@ export const register: Register = on => {
     const stat = await $.fs.stat(`${cwd}/.workflow/config.json`).catch(() => null)
     if (!stat) return ran
     root = cwd
-    await $.command.register({ name: COMMAND, description: 'Open the vibe-workflow progress panel and print progress across 10 stages' })
+    await $.command.register({ name: COMMAND, description: 'Open the vibe-workflow progress panel and print progress across 12 stages' })
     await refresh($)
     void $.ui.open({ id: PANE, title: TITLE, columns: PANE_COLUMNS })
     $.clock.every(REFRESH_EVERY_MS, () => refresh($))
@@ -203,7 +203,7 @@ export const register: Register = on => {
         <Text> </Text>
         {prev && <Text dimColor>Prev {prev.n}. {prev.title}</Text>}
         {cur && <Text color="cyan">Now  {cur.n}. {cur.title} → /{cur.skill}</Text>}
-        {cur && <Text dimColor>      {cur.label} · .workflow/{cur.file}</Text>}
+        {cur && <Text dimColor>      {cur.label} · {cur.file}</Text>}
         {next && <Text dimColor>Next {next.n}. {next.title}</Text>}
         {!cur && <Text color="green">All stages done — for a new feature: /wf-next</Text>}
         {now && <Text dimColor>Last {now.label}</Text>}

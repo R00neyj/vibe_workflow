@@ -17,13 +17,13 @@ description: Continue to the next vibe-workflow stage skill. Also handles re-ent
 
 For a new feature request after release:
 
-1. `AskUserQuestion`: "Feature spec first (stage 2) / Implement now (stage 6)". Recommend implementing now when the change is small.
+1. `AskUserQuestion`: "Feature spec first (stage 2) / Implement now (stage 8)". Recommend implementing now when the change is small.
 2. If spec first, add only the new F-IDs in `/wf-spec`. Later stages cover **only the additions** (wireframe only new screens, usability-test only new tasks).
 3. Revert the status of each re-entered stage document to `draft` and log "Feature-add cycle: F-xx" in the Decision log.
 
 ## Doc catch-up
 
-On "clean up the docs" or at a stage transition (7→8, 9→10):
+On "clean up the docs" or at a stage transition (9→10, 11→12):
 
 1. Scan code changes since the last catch-up with `git log`/`git diff`.
 2. List features/screens missing from the docs and anything implemented differently from the docs.

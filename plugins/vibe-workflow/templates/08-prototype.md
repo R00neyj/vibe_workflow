@@ -8,7 +8,7 @@ Created: {{DATE}}
 status: draft
 -->
 
-> Basis: [feature spec](02-spec.md), approved [wireframe](04-wireframe/index.html). Done when: Must features work and run instructions are written → `status: done`
+> Basis: [feature spec](02-spec.md), approved [wireframe](06-wireframe/index.html), [DESIGN.md](../DESIGN.md). Done when: Must features work and run instructions are written → `status: done`
 
 ## At a glance
 

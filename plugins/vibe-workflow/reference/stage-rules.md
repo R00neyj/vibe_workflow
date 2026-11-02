@@ -7,19 +7,22 @@ Every `wf-*` stage skill follows this document before starting.
 ## Document structure — hub + wiki
 
 ```
+DESIGN.md                   5. Design system — project root, living doc      [UI]
 .workflow/
 ├── README.md               hub. Overall flow, progress table, decision log, open questions
 ├── 01-brief.md             1. Research & brief        [Planning]
 ├── 02-spec.md              2. Feature spec            [Planning]
 ├── 03-flow.md              3. UX flowchart            [UX]
-├── 04-wireframe/           4. Low-fi wireframe        [UI]
-├── 05-wireframe-review.md  5. Wireframe review        [UI]
-├── 06-prototype.md         6. Prototype               [Development]
-├── 07-usability.md         7. Usability test          [Development]
-├── 08-prerelease.md        8. Pre-release             [Release]
-├── 09-internal-test.md     9. Internal test           [Release]
-├── 09-tester-guide.md         Guide handed to testers
-└── 10-release.md           10. Release                [Release]
+├── 04-references.md        4. UI references           [UI]
+├── 04-references/             captures
+├── 06-wireframe/           6. Low-fi wireframe        [UI]
+├── 07-wireframe-review.md  7. Wireframe review        [UI]
+├── 08-prototype.md         8. Prototype               [Development]
+├── 09-usability.md         9. Usability test          [Development]
+├── 10-prerelease.md        10. Pre-release            [Release]
+├── 11-internal-test.md     11. Internal test          [Release]
+├── 11-tester-guide.md          Guide handed to testers
+└── 12-release.md           12. Release                [Release]
 ```
 
 - The hub (`README.md`) is the only entry point. Opening it tells the user how far along things are.
@@ -41,9 +44,20 @@ The user must be able to read a document in 1-2 minutes. A long document goes un
 | Brief | About 80 lines |
 | Feature spec | At most 10 lines per feature. Beyond 8 features, split details into `02-spec/F-xx.md` subpages and link them from the list table |
 | Flow | At most 20 mermaid nodes. Beyond that, split into per-task subflows |
+| DESIGN.md | About 100 lines, tables only |
 | Others | About 60 lines |
 
 - Subpages also carry a `[← Parent document](../02-spec.md)` nav line at the top.
+
+## DESIGN.md — the UI source of truth
+
+`DESIGN.md` (project root) holds the design tokens and component definitions. Unlike stage docs it never "finishes".
+
+- **Read it before any UI work**: wireframe, prototype, usability fixes, internal-test fixes, and any UI request outside the stages.
+- Use only its tokens and components. Never hardcode a color, size, spacing, radius, shadow or duration that is not a token.
+- Need something new → add it to DESIGN.md (table row + Change log line), then use it. A new variant or token is a medium change: do it, no question. Changing a core token (primary color, font) that touches every screen is large: ask once.
+- Code tokens mirror DESIGN.md names (e.g. `color.primary` → `--color-primary`). If code and DESIGN.md drift, fix the code to match, or ask which one is right.
+- Link to it from stage docs as `[DESIGN.md](../DESIGN.md)`.
 
 ## Doc involvement level — docs never block code
 
@@ -57,16 +71,16 @@ When the user wants something, do it first and catch the docs up afterward.
 | large | Change a core feature or core task, change target users or goals, implement an out-of-scope item | Before implementing, `AskUserQuestion` **once**: "Update planning, then proceed / Implement now, docs later". Proceed either way |
 
 - On finding a doc/code mismatch, do not stop work. Leave one line in hub Open questions and continue.
-- Do the doc catch-up in one batch when crossing stages (especially 7 → 8, 9 → 10).
+- Do the doc catch-up in one batch when crossing stages (especially 9 → 10, 11 → 12).
 - Never refuse or defer a user request because "the docs must be fixed first".
 
 ## Wiki link rules
 
 - When mentioning another document, **always use a relative link.** Never write a bare file name.
 - Link features by ID: `[F-01](02-spec.md#f-01)`. When adding a new feature, also add an `<a id="f-xx"></a>` anchor in `02-spec.md`.
-- Link screens by slug: `[home](04-wireframe/home.html)`.
+- Link screens by slug: `[home](06-wireframe/home.html)`.
 - Link task/issue IDs (T1, U-01, I-01) to the document that defines them.
-- Do not delete the nav line at the top of a document (`← Overall flow · Previous · Next`).
+- Do not delete the nav line at the top of a document (`← Hub · Prev · Next`).
 
 ## Progress
 

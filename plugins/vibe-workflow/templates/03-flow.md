@@ -16,7 +16,7 @@ status: draft
 
 ## Screen list
 
-These become the stage 4 wireframe file names. A slug is lowercase letters, digits, and `-`.
+These become the stage 6 wireframe file names. A slug is lowercase letters, digits, and `-`.
 
 | slug | Screen name | Related feature |
 | --- | --- | --- |
@@ -35,4 +35,4 @@ flowchart TD
 
 | Feature | Start screen | Path | Exit/exception branches |
 | --- | --- | --- | --- |
-| [F-01](02-spec.md#f-01) | [home](04-wireframe/home.html) | home → … | |
+| [F-01](02-spec.md#f-01) | [home](06-wireframe/home.html) | home → … | |

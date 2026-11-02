@@ -1,9 +1,9 @@
 ---
 name: wf-usability
-description: vibe-workflow stage 7 (Development). Run a prototype usability test. Derive tasks from the core features in the brief and feature spec, give only the goal with no steps, investigate where the user got stuck, then fix and retest. Use when the user says "usability test", "I'll test it", "what's awkward when I use it", "user test", "test the prototype".
+description: vibe-workflow stage 9 (Development). Run a prototype usability test. Derive tasks from the core features in the brief and feature spec, give only the goal with no steps, investigate where the user got stuck, then fix and retest. Use when the user says "usability test", "I'll test it", "what's awkward when I use it", "user test", "test the prototype".
 ---
 
-# wf-usability — 7. Usability test [Development]
+# wf-usability — 9. Usability test [Development]
 
 Before starting, Read `${CLAUDE_PLUGIN_ROOT}/reference/stage-rules.md` and follow the common procedure. Stage key: `usability`.
 
@@ -24,7 +24,7 @@ Before starting, Read `${CLAUDE_PLUGIN_ROOT}/reference/stage-rules.md` and follo
    If "something confusing" or "couldn't find something" has no details, ask once more where and what they expected. Record the user's words verbatim in the `Round 1` table.
 4. **Facilitator table** — only after every task in the round is done, fill the `Facilitator only — fill in after the round ends` table (source feature, success criteria, expected path).
 5. **Issues** — group stuck points into issues (U-xx) in `Issues and fixes` with severity: high (fail or needed help), medium (difficulty 2 or lower), low. One line on the cause: screen, copy, or flow.
-6. **Fix** — fix from high severity down. If a fix is large, handle it per the common rules' `Doc involvement level`. Record the fixed files in the table.
+6. **Fix** — read `DESIGN.md` first for any UI fix; use its tokens and components, and log new ones there. Fix from high severity down. If a fix is large, handle it per the common rules' `Doc involvement level`. Record the fixed files in the table.
 7. **Retest** — present only the fixed tasks in a new round. Keep the same goal but change the situation in the prompt to reduce learning effects.
 
 ## Done

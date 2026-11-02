@@ -7,7 +7,7 @@ const path = require('path')
 const cp = require('child_process')
 const wf = require('./lib/wf.js')
 
-const VERSION = '0.3.0'
+const VERSION = '0.4.0'
 const CHECK_TIMEOUT_MS = 15 * 60 * 1000
 const OUTPUT_TAIL_LINES = 25
 const SLUG_RE = /^[a-z0-9][a-z0-9-]*$/
@@ -108,7 +108,7 @@ function statusJson(r, p) {
         name: phase,
         stages: p.rows.filter(function (x) { return x.stage.phase === phase }).map(function (x) {
           const s = x.stage
-          return { n: s.n, key: s.key, title: s.title, file: s.file, skill: s.skill, status: x.status, label: wf.statusLabel(x), complete: x.complete }
+          return { n: s.n, key: s.key, title: s.title, file: wf.docPath(s), skill: s.skill, status: x.status, label: wf.statusLabel(x), complete: x.complete }
         }),
       }
     }),
@@ -125,7 +125,7 @@ function cmdStatus(args) {
     for (const row of p.rows.filter(function (x) { return x.stage.phase === phase })) {
       const mark = row.complete ? 'v' : (p.next === row.stage ? '>' : ' ')
       const s = row.stage
-      console.log(' ' + mark + ' ' + String(s.n).padStart(2) + '. ' + s.title + ' — ' + wf.statusLabel(row) + '  (.workflow/' + s.file + ')')
+      console.log(' ' + mark + ' ' + String(s.n).padStart(2) + '. ' + s.title + ' — ' + wf.statusLabel(row) + '  (' + wf.docPath(s) + ')')
     }
   }
   if (!p.next) return console.log('\nAll stages done. For a new feature, start again at /wf-spec.')
@@ -141,7 +141,7 @@ function cmdNew(args) {
   const force = args.indexOf('--force') !== -1
   const vars = { DATE: wf.localDate(), PROJECT: path.basename(r), NAV: wf.navLine(stage) }
   for (const pair of wf.stageTemplates(stage)) {
-    const rel = path.join(wf.WF_DIR, pair[1])
+    const rel = path.normalize(path.join(wf.WF_DIR, pair[1]))
     const made = writeNew(path.join(r, rel), render(pair[0], vars), force)
     console.log((made ? 'Created: ' : 'Exists (kept): ') + rel.replace(/\\/g, '/'))
   }
@@ -153,8 +153,8 @@ function cmdScreen(args) {
   const slug = args[0]
   const title = args.slice(1).join(' ').trim()
   if (!slug || !SLUG_RE.test(slug) || !title) die('Usage: wfctl screen <slug(lowercase, digits, -)> "<screen name>"')
-  const rel = path.join(wf.WF_DIR, '04-wireframe', slug + '.html')
-  const made = writeNew(path.join(r, rel), render('04-wireframe/screen.html', { SLUG: slug, TITLE: title }), false)
+  const rel = path.join(wf.WF_DIR, '06-wireframe', slug + '.html')
+  const made = writeNew(path.join(r, rel), render('06-wireframe/screen.html', { SLUG: slug, TITLE: title }), false)
   console.log((made ? 'Created: ' : 'Exists (kept): ') + rel.replace(/\\/g, '/'))
 }
 
@@ -221,7 +221,7 @@ const HELP = [
   'wfctl ' + VERSION + ' — vibe-workflow',
   '',
   '  init [--force]              create .workflow/config.json (auto-detects checks and run command)',
-  '  status [--json]             progress across 10 stages and next step (--json: for the panel)',
+  '  status [--json]             progress across 12 stages and next step (--json: for the panel)',
   '  sync                        redraw the hub (README.md) progress table from markers',
   '  new <stage> [--force]       create a stage doc from its template (stage key or number)',
   '  screen <slug> "<name>"      create a wireframe screen file',

@@ -9,8 +9,8 @@
     {
       "name": "vibe-workflow",
       "source": "./plugins/vibe-workflow",
-      "description": "A 10-stage vibe-coding workflow: Planning → UX → UI → Development → Release. Builds one hub doc plus a wiki page per stage through skills. No blocking hooks, only a read-only progress panel.",
-      "version": "0.3.0"
+      "description": "A 12-stage vibe-coding workflow: Planning → UX → UI → Development → Release. Builds one hub doc plus a wiki page per stage through skills. No blocking hooks, only a read-only progress panel.",
+      "version": "0.4.0"
     }
   ]
 }

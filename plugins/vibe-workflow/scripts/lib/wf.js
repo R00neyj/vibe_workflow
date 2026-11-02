@@ -13,19 +13,22 @@ const STAGES = [
   { n: 1, key: 'brief', phase: 'Planning', title: 'Research & brief', file: '01-brief.md', skill: 'wf-brief', done: 'done' },
   { n: 2, key: 'spec', phase: 'Planning', title: 'Feature spec', file: '02-spec.md', skill: 'wf-spec', done: 'done' },
   { n: 3, key: 'flow', phase: 'UX', title: 'UX flowchart', file: '03-flow.md', skill: 'wf-flow', done: 'done' },
-  { n: 4, key: 'wireframe', phase: 'UI', title: 'Low-fi wireframe', file: '04-wireframe/index.html', skill: 'wf-wireframe', done: 'done' },
-  { n: 5, key: 'wireframe-review', phase: 'UI', title: 'Wireframe review', file: '05-wireframe-review.md', skill: 'wf-wireframe-review', done: 'approved' },
-  { n: 6, key: 'prototype', phase: 'Development', title: 'Prototype', file: '06-prototype.md', skill: 'wf-prototype', done: 'done' },
-  { n: 7, key: 'usability', phase: 'Development', title: 'Usability test', file: '07-usability.md', skill: 'wf-usability', done: 'done' },
-  { n: 8, key: 'prerelease', phase: 'Release', title: 'Pre-release', file: '08-prerelease.md', skill: 'wf-prerelease', done: 'deployed' },
-  { n: 9, key: 'internal-test', phase: 'Release', title: 'Internal test', file: '09-internal-test.md', skill: 'wf-internal-test', done: 'done' },
-  { n: 10, key: 'release', phase: 'Release', title: 'Release', file: '10-release.md', skill: 'wf-release', done: 'released' },
+  { n: 4, key: 'references', phase: 'UI', title: 'UI references', file: '04-references.md', skill: 'wf-references', done: 'done' },
+  { n: 5, key: 'design', phase: 'UI', title: 'Design system (DESIGN.md)', file: '../DESIGN.md', skill: 'wf-design', done: 'done' },
+  { n: 6, key: 'wireframe', phase: 'UI', title: 'Low-fi wireframe', file: '06-wireframe/index.html', skill: 'wf-wireframe', done: 'done' },
+  { n: 7, key: 'wireframe-review', phase: 'UI', title: 'Wireframe review', file: '07-wireframe-review.md', skill: 'wf-wireframe-review', done: 'approved' },
+  { n: 8, key: 'prototype', phase: 'Development', title: 'Prototype', file: '08-prototype.md', skill: 'wf-prototype', done: 'done' },
+  { n: 9, key: 'usability', phase: 'Development', title: 'Usability test', file: '09-usability.md', skill: 'wf-usability', done: 'done' },
+  { n: 10, key: 'prerelease', phase: 'Release', title: 'Pre-release', file: '10-prerelease.md', skill: 'wf-prerelease', done: 'deployed' },
+  { n: 11, key: 'internal-test', phase: 'Release', title: 'Internal test', file: '11-internal-test.md', skill: 'wf-internal-test', done: 'done' },
+  { n: 12, key: 'release', phase: 'Release', title: 'Release', file: '12-release.md', skill: 'wf-release', done: 'released' },
 ]
 
 // Per-stage template copies: [template path, destination relative to .workflow]
 const STAGE_TEMPLATES = {
-  'wireframe': [['04-wireframe/index.html', '04-wireframe/index.html'], ['04-wireframe/wireframe.css', '04-wireframe/wireframe.css']],
-  'internal-test': [['09-internal-test.md', '09-internal-test.md'], ['09-tester-guide.md', '09-tester-guide.md']],
+  'design': [['DESIGN.md', '../DESIGN.md']],
+  'wireframe': [['06-wireframe/index.html', '06-wireframe/index.html'], ['06-wireframe/wireframe.css', '06-wireframe/wireframe.css']],
+  'internal-test': [['11-internal-test.md', '11-internal-test.md'], ['11-tester-guide.md', '11-tester-guide.md']],
 }
 
 const DEFAULT_CONFIG = {
@@ -57,6 +60,9 @@ function findStage(keyOrNumber) {
   const k = String(keyOrNumber || '').toLowerCase()
   return STAGES.find(function (s) { return s.key === k || String(s.n) === k }) || null
 }
+
+/** Stage doc path relative to the project root, for display. */
+function docPath(stage) { return path.posix.normalize(path.posix.join(WF_DIR, stage.file)) }
 
 function stageTemplates(stage) {
   return STAGE_TEMPLATES[stage.key] || [[stage.file, stage.file]]
@@ -148,14 +154,20 @@ function statusLabel(row) {
   return STATUS_LABEL[row.status] || row.status
 }
 
-function stageLink(stage) { return '[' + stage.n + '. ' + stage.title + '](' + stage.file + ')' }
+/** Link from the doc of stage `from` (default: the hub) to `target`, relative to where that doc lives. */
+function linkFrom(from, target) {
+  const base = path.posix.dirname(path.posix.join(WF_DIR, from ? from.file : HUB_FILE))
+  return path.posix.relative(base, path.posix.join(WF_DIR, target))
+}
 
-/** Nav line at the top of a stage doc; assumes the doc sits directly under .workflow. */
+function stageLink(stage, from) { return '[' + stage.n + '. ' + stage.title + '](' + linkFrom(from, stage.file) + ')' }
+
+/** Nav line at the top of a stage doc. */
 function navLine(stage) {
   const i = STAGES.indexOf(stage)
-  const parts = ['[← Hub](' + HUB_FILE + ')']
-  if (i > 0) parts.push('Prev: ' + stageLink(STAGES[i - 1]))
-  if (i < STAGES.length - 1) parts.push('Next: ' + stageLink(STAGES[i + 1]))
+  const parts = ['[← Hub](' + linkFrom(stage, HUB_FILE) + ')']
+  if (i > 0) parts.push('Prev: ' + stageLink(STAGES[i - 1], stage))
+  if (i < STAGES.length - 1) parts.push('Next: ' + stageLink(STAGES[i + 1], stage))
   return parts.join(' · ')
 }
 
@@ -193,6 +205,7 @@ module.exports = {
   findRoot: findRoot,
   wfDir: wfDir,
   findStage: findStage,
+  docPath: docPath,
   stageTemplates: stageTemplates,
   localDate: localDate,
   localStamp: localStamp,
