@@ -1,6 +1,6 @@
 {
   "name": "vibe-workflow",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "A 14-stage vibe-coding workflow (9 in lite mode): Planning → UX → UI → Development → Release. Builds one hub doc plus a wiki page per stage through skills. No blocking hooks, only a read-only progress panel.",
   "author": {
     "name": "R00neyj",

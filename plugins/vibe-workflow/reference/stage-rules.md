@@ -15,7 +15,7 @@ DESIGN.md                   5. Design system — project root, living doc      [
 ├── 02-spec.md              2. Feature spec              [Planning]
 ├── 03-flow.md              3. UX flowchart              [UX]
 ├── 04-references.md        4. UI references *           [UI]
-├── 06-wireframe/           6. Low-fi wireframe          [UI]
+├── 06-wireframe/           6. Mid-fi wireframe          [UI]
 ├── 07-wireframe-review.md  7. Wireframe review *        [UI]
 ├── 08-tech.md              8. Tech design *             [Development]
 ├── 09-prototype.md         9. Prototype                 [Development]

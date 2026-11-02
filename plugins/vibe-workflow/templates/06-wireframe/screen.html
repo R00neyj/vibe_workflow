@@ -10,13 +10,43 @@
 <header class="wf-top">
   <a href="index.html">← Screen list</a>
   <h1>{{TITLE}} <small>{{SLUG}}</small></h1>
-  <p class="wf-note">Related feature: <!-- <a href="../02-spec.md#f-01">F-01</a> --></p>
+  <p class="wf-note">Mid-fi · grayscale · real copy · DESIGN.md components. Related feature: <!-- <a href="../02-spec.md#f-01">F-01</a> --></p>
 </header>
-<main class="wf-frame">
-  <div class="box">Header</div>
-  <div class="box tall">Content area</div>
-  <a class="btn" href="index.html">Primary action → next screen</a>
-</main>
+
+<!-- Replace the sample with this screen's real structure and copy. Add class "desktop" to .screen for desktop. -->
+<div class="wf-states">
+  <div>
+    <p class="wf-state-label">Default</p>
+    <main class="screen">
+      <div class="bar"><span class="icon">←</span><span class="title">Screen title</span><span class="icon">⋯</span></div>
+      <div class="body">
+        <div class="stack">
+          <h1 class="t-title">What the user sees first, in real words</h1>
+          <p class="t-body t-muted">One line that explains the next action.</p>
+        </div>
+        <div class="field">
+          <label for="f1">Field label</label>
+          <div class="input" id="f1">Example value</div>
+          <span class="hint">Helper text</span>
+        </div>
+        <ul class="list">
+          <li><span class="avatar"></span><div class="grow stack"><span class="t-body">Realistic item name</span><span class="t-caption">Secondary detail · 3 min ago</span></div><span class="badge">Status</span></li>
+          <li><span class="avatar"></span><div class="grow stack"><span class="t-body">Another item with a longer name</span><span class="t-caption">Secondary detail</span></div></li>
+        </ul>
+        <a class="btn primary block" href="index.html">Primary action</a>
+      </div>
+      <nav class="tabbar"><span>Home</span><span>Search</span><span>Profile</span></nav>
+    </main>
+  </div>
+  <div>
+    <p class="wf-state-label">Empty</p>
+    <main class="screen">
+      <div class="bar"><span class="icon">←</span><span class="title">Screen title</span><span class="icon">⋯</span></div>
+      <div class="empty"><div class="img" style="width:120px">Image</div><p class="t-body">Nothing here yet. Say what to do next.</p><a class="btn primary" href="index.html">First action</a></div>
+    </main>
+  </div>
+</div>
+
 <aside class="wf-annot">
   <h2>Annotations</h2>
   <ol><li>What the user does on this screen</li></ol>

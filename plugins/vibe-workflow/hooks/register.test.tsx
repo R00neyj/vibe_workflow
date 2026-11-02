@@ -10,7 +10,7 @@ const STATUS = {
   phases: [
     { name: 'Planning', stages: [stage(1, 'Research & brief', true), stage(2, 'Feature spec', true)] },
     { name: 'UX', stages: [stage(3, 'UX flowchart', false)] },
-    { name: 'UI', stages: [stage(4, 'Low-fi wireframe', false)] },
+    { name: 'UI', stages: [stage(4, 'Mid-fi wireframe', false)] },
   ],
 }
 
@@ -41,7 +41,7 @@ test('the pane shows the current and next stage', async ($, on) => {
   await $.session.start({ cwd: '/p', surface: 'terminal', isInteractive: true })
   const ui = await $.ui.mount({ ...PANE, surface: 'terminal' })
   expect((await ui.find({ type: 'Text', text: /^Now / }))?.text).toBe('Now  3. UX flowchart → /wf-s3')
-  expect((await ui.find({ type: 'Text', text: /^Next / }))?.text).toBe('Next 4. Low-fi wireframe')
+  expect((await ui.find({ type: 'Text', text: /^Next / }))?.text).toBe('Next 4. Mid-fi wireframe')
   expect((await ui.find({ type: 'Text', text: /^vibe-workflow/ }))?.text).toBe('vibe-workflow · 2/4')
   await ui.unmount()
 })

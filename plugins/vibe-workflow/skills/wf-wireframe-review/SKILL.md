@@ -13,7 +13,7 @@ Never approve on the user's behalf. Even if no issues seem to exist, always ask 
 
 ## Steps
 
-1. Review guide: tell the user to open `06-wireframe/index.html` and click through the core task paths. Give only 3 things to look for: missing screens/elements, awkward ordering, unnecessary things.
+1. Review guide: tell the user to open `06-wireframe/index.html` and click through the core task paths. Give only 4 things to look for: missing screens or elements, awkward order, unclear wording, anything unnecessary.
 2. Take the user's feedback and record one line per screen in the round table.
 3. Fix the wireframes. If the flow changes, reflect one line in `03-flow.md` too. A new or changed component → update `DESIGN.md`.
 4. `AskUserQuestion`: "Approve / Fix and review again / Redo from the flow".

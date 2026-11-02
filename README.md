@@ -12,7 +12,7 @@ You build with one hub document and a wiki of per-stage documents. No blocking h
 | UX | 3 | UX flowchart | `03-flow.md` (mermaid) | `/wf-flow` |
 | UI | 4 | UI references * (screen-level layouts, components, interactions, visual direction) | `04-references.md` | `/wf-references` |
 | UI | 5 | Design system — design tokens + component definitions | **`DESIGN.md`** (project root) | `/wf-design` |
-| UI | 6 | Low-fi wireframe | `06-wireframe/*.html` | `/wf-wireframe` |
+| UI | 6 | Mid-fi wireframe | `06-wireframe/*.html` | `/wf-wireframe` |
 | UI | 7 | Wireframe review * (user approval) | `07-wireframe-review.md` | `/wf-wireframe-review` |
 | Development | 8 | Tech design * (stack, data model, API, auth, environments) | `08-tech.md` | `/wf-tech` |
 | Development | 9 | Prototype (+ design check against DESIGN.md) | source code + `09-prototype.md` | `/wf-prototype` |
@@ -65,12 +65,12 @@ vibe-workflow · 6/14
 [-] ▶ UI          █████░ 3/4
         ✓ 4. UI references
         ✓ 5. Design system (DESIGN.md)
-        ✓ 6. Low-fi wireframe
+        ✓ 6. Mid-fi wireframe
         ▶ 7. Wireframe review
 [+] · Development ░░░░░░ 0/4
 [+] · Release     ░░░░░░ 0/3
 
-Prev 6. Low-fi wireframe
+Prev 6. Mid-fi wireframe
 Now  7. Wireframe review → /wf-wireframe-review
 Next 8. Tech design
 ```

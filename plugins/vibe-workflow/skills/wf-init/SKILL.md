@@ -17,7 +17,7 @@ description: Install vibe-workflow into a project, create the hub document (.wor
 ```
 Planning     1 Research & brief → 2 Feature spec
 UX           3 UX flowchart
-UI           4 UI references* → 5 Design system (DESIGN.md) → 6 Low-fi wireframe → 7 Wireframe review*
+UI           4 UI references* → 5 Design system (DESIGN.md) → 6 Mid-fi wireframe → 7 Wireframe review*
 Development  8 Tech design* → 9 Prototype → 10 Usability test → 11 Hardening & verification
 Release      12 Pre-release* → 13 Internal test* → 14 Release
 * skipped in lite mode

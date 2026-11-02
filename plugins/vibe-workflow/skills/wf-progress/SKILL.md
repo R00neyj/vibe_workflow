@@ -17,7 +17,7 @@ Display only. Do not edit documents or run the next stage.
 ```
 Progress 6/14 (full) · now [UI] 7. Wireframe review → /wf-wireframe-review
 Planning ██████ 2/2 · UX ██████ 1/1 · UI █████░ 3/4 · Development ░░░░░░ 0/4 · Release ░░░░░░ 0/3
-Previous 6. Low-fi wireframe (done) · Next 8. Tech design
+Previous 6. Mid-fi wireframe (done) · Next 8. Tech design
 Hub .workflow/README.md
 ```
 

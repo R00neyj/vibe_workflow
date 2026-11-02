@@ -16,7 +16,7 @@ const STAGES = [
   { n: 3, key: 'flow', phase: 'UX', title: 'UX flowchart', file: '03-flow.md', skill: 'wf-flow', done: 'done' },
   { n: 4, key: 'references', phase: 'UI', title: 'UI references', file: '04-references.md', skill: 'wf-references', done: 'done', lite: false },
   { n: 5, key: 'design', phase: 'UI', title: 'Design system (DESIGN.md)', file: '../DESIGN.md', skill: 'wf-design', done: 'done' },
-  { n: 6, key: 'wireframe', phase: 'UI', title: 'Low-fi wireframe', file: '06-wireframe/index.html', skill: 'wf-wireframe', done: 'done' },
+  { n: 6, key: 'wireframe', phase: 'UI', title: 'Mid-fi wireframe', file: '06-wireframe/index.html', skill: 'wf-wireframe', done: 'done' },
   { n: 7, key: 'wireframe-review', phase: 'UI', title: 'Wireframe review', file: '07-wireframe-review.md', skill: 'wf-wireframe-review', done: 'approved', lite: false },
   { n: 8, key: 'tech', phase: 'Development', title: 'Tech design', file: '08-tech.md', skill: 'wf-tech', done: 'done', lite: false },
   { n: 9, key: 'prototype', phase: 'Development', title: 'Prototype', file: '09-prototype.md', skill: 'wf-prototype', done: 'done' },
