@@ -1,166 +1,135 @@
-# CLAUDE.ko.md — 한국어판
+# CLAUDE.md (한국어판)
 
-이 문서는 [CLAUDE.md](CLAUDE.md) 의 한국어 번역이다. **정본은 영문판이다.**
-Claude Code 가 자동으로 읽는 것은 `CLAUDE.md` 뿐이고, 이 파일은 사람이 읽기 위한 참조본이다.
-규약을 바꿀 때는 영문판을 먼저 고치고 이 문서를 맞춘다.
+이 문서는 이 저장소에서 작업하는 Claude Code(claude.ai/code)를 위한 안내다.
 
-## 이 저장소가 무엇인가
+[CLAUDE.md](CLAUDE.md) 의 한국어 번역이다. **영문판이 원본이다** — 영문판을 먼저 고치고 이 문서에 반영한다.
 
-`vibe-workflow` Claude Code 플러그인의 소스다. 여기서 만드는 것은 **다른 프로젝트에 설치될 워크플로우 시스템**이다.
-이 저장소 자체는 그 워크플로우의 적용 대상이 아니다 (`.workflow/` 가 없다).
+## 이 저장소는 무엇인가
+
+`vibe-workflow` Claude Code 플러그인의 소스다. 여기서 만드는 것은 **다른 프로젝트에 설치되는 워크플로우 시스템**이다.
+이 저장소 자체는 그 워크플로우의 적용 대상이 아니다(`.workflow/` 가 없다).
+
+워크플로우는 5개 큰 단계로 묶인 10단계다: 기획(1 기획서, 2 기능 명세) → UX(3 플로우) → UI(4 와이어프레임, 5 와이어프레임 검토) → 개발(6 프로토타입, 7 사용성 테스트) → 릴리즈(8 프리릴리즈, 9 내부 테스트, 10 릴리즈).
 
 ## 명령
 
-의존성도 빌드도 테스트 프레임워크도 없다. 순수 node 내장 모듈만 쓴다.
+의존성, 빌드 단계, 테스트 프레임워크 없음. node 내장 모듈만 쓴다.
 
 ```bash
-# JSON 매니페스트 검증 (깨지면 모든 설정이 조용히 무시되므로 필수)
+# JSON 매니페스트 검증 (깨진 매니페스트는 조용히 무시되므로 필수)
 node -e "JSON.parse(require('fs').readFileSync('.claude-plugin/marketplace.json','utf8'))"
 node -e "JSON.parse(require('fs').readFileSync('plugins/vibe-workflow/.claude-plugin/plugin.json','utf8'))"
-node -e "JSON.parse(require('fs').readFileSync('plugins/vibe-workflow/hooks/hooks.json','utf8'))"
 
-# 훅 파이프 테스트 — 등록 전에 반드시 한다
-H=plugins/vibe-workflow/hooks
-echo '{"tool_name":"Edit","tool_input":{"file_path":"/절대/경로/src/a.ts"}}' | node $H/gate-write.js
-echo '{}' | node $H/gate-stop.js
-echo '{}' | node $H/inject-phase.js
+# wfctl 수동 구동 (임시 디렉터리에서. 이 저장소에서 돌리지 않는다)
+W=<저장소>/plugins/vibe-workflow/scripts/wfctl.js
+node $W init && node $W new spec && node $W screen home "홈" && node $W status && node $W sync
 
-# wfctl 수동 구동 (임시 디렉터리에서)
-node plugins/vibe-workflow/scripts/wfctl.js init
-node plugins/vibe-workflow/scripts/wfctl.js status
-
-# 로컬 설치 테스트 (설치 없이 로드)
+# 설치 없이 로드
 claude --plugin-dir "$(pwd)/plugins/vibe-workflow"
 
-# 매니페스트가 실제로 로드되는지 검증 — JSON 문법 검사만으로는 못 잡는다
+# 매니페스트가 실제로 로드되는지 확인 — JSON 문법 검사로는 못 잡는다
 claude --plugin-dir "$(pwd)/plugins/vibe-workflow" plugin details vibe-workflow
 
 # 실제 설치 (로컬 경로는 './' 형태여야 한다)
 claude plugin marketplace add ./
 claude plugin install vibe-workflow@vibe-workflow
-claude plugin list          # Status 가 enabled 인지 확인. 로드 실패도 여기 뜬다
+claude plugin list          # Status 가 enabled 인지 확인. 로드 실패도 여기 나온다
 ```
-
-**`plugin.json` 에 `"hooks"` 필드를 넣지 마라.** `hooks/hooks.json` 은 자동으로 로드된다.
-매니페스트에서 또 참조하면 `Duplicate hooks file detected` 로 플러그인 전체가 로드 실패한다.
-`manifest.hooks` 는 표준 경로 **외의** 추가 훅 파일을 가리킬 때만 쓴다.
-이 오류는 JSON 문법 검사로는 안 잡히고 `claude plugin list` 의 Status 에서만 드러난다.
-
-훅을 고친 뒤에는 **파이프 테스트로 차단·허용 두 경로를 모두 확인한다.**
-허용 경로에서 출력이 비어 있는지 반드시 본다 — 여기서 잘못 출력하면 정상 작업이 전부 막힌다.
 
 ## 아키텍처
 
+### 훅 없음
+
+0.2.0 부터 플러그인은 **훅을 하나도 싣지 않는다.** 차단형 훅이 사용을 답답하게 만들어 의도적으로 제거했다.
+차단·ask·매 프롬프트 컨텍스트 주입 훅을 다시 넣지 않는다. 훅을 제안하게 된다면 비차단·읽기 전용이어야 하고 `.workflow/` 프로젝트 밖에서는 아무것도 출력하지 않아야 하며, 사용자가 요청한 경우에만 넣는다.
+
+### 허브 + 위키 문서
+
+대상 프로젝트에서 `.workflow/README.md` 가 허브다: 개요, 진행 표, 결정 로그, 열린 질문.
+각 단계는 위키 페이지 하나(`01-brief.md` … `10-release.md`, `04-wireframe/*.html`)를 쓰고, 허브와 이웃 단계로 가는 네비 줄을 두며, ID 로 상호 링크한다(`[F-01](02-spec.md#f-01)`).
+진행 표는 `<!-- wf:index:begin -->` 과 `<!-- wf:index:end -->` 사이에 있고 `wfctl sync` 가 다시 그린다. 허브의 나머지는 스킬이 쓴다.
+
 ### 상태 모델
 
-단일 진실 원천은 대상 프로젝트의 `.workflow/state.json` 이고, 담는 것은 `phase` 와 `task` 뿐이다.
+**상태 파일이 없다.** 진행 상황은 매번 각 단계 문서의 마커에서 파생된다:
 
-**게이트 통과 여부는 state.json에 저장하지 않는다.** 매번 산출물 파일에서 파생시킨다:
+```
+<!-- wf:spec
+status: done
+-->
+```
 
-- 계획 승인 = `tasks/<id>/review.md` 의 `<!-- wf:review ... decision: approved -->` 마커
-- 검증 통과 = `tasks/<id>/verify.md` 의 `<!-- wf:verify ... -->` 마커에서, config에 켜진 항목이 전부 `pass`
-
-이 설계 때문에 상태와 실제가 어긋날 수 없다. 새 게이트를 추가할 때도 같은 원칙을 지킨다 — 판정 결과를 캐시하지 마라.
+`status` 가 `STAGES` 에 정의된 그 단계의 `done` 값(`done`, 또는 `approved` / `deployed` / `released`)과 같으면 완료다. 다음 단계는 첫 번째 미완료 단계다.
+판정을 다른 곳에 캐시하지 않는다. 단계를 추가할 때도 같은 원칙을 지킨다.
 
 ### 계층
 
 ```
-hooks/lib/wf.js          모든 판정 로직의 단일 위치
-   ↑ require
-hooks/*.js               얇은 어댑터 (stdin 읽기 → wf.js 판정 → stdout)
-scripts/wfctl.js         같은 wf.js 를 써서 사람/스킬이 상태를 바꾼다
+scripts/lib/wf.js        STAGES 표, 마커 파싱, 진행 판정, 허브 렌더링 — 순수, 입력만으로 답한다
+scripts/wfctl.js         CLI: init / status / sync / new / screen / check / deploy / doctor — 파일 쓰기는 여기에만
+reference/stage-rules.md 모든 단계 스킬이 먼저 읽는 공통 규약
+skills/wf-*/SKILL.md     단계마다 스킬 하나 + wf-init + wf-next(라우터)
+templates/               허브, 단계 문서, 와이어프레임 HTML/CSS
 ```
 
-**판정 로직은 반드시 `wf.js` 에 둔다.** 훅과 wfctl이 서로 다른 판단을 하면 이중 방어가 깨진다.
-예: `wfctl phase build` 는 `reviewStatus()` 로 거부하고, `gate-write.js` 도 같은 `reviewStatus()` 로 차단한다.
+단계 정의는 `wf.js` 의 `STAGES` 에만 있다. 스킬·템플릿·README 는 이와 일치해야 한다(키, 파일명, 완료 값).
 
-### 훅 4종의 역할 분담
+### 문서 관여 수준
 
-| 파일 | 이벤트 | 책임 |
-| --- | --- | --- |
-| `gate-write.js` | PreToolUse | 유일하게 `deny`/`ask` 를 내는 곳 |
-| `mark-dirty.js` | PostToolUse | `dirty.txt` 에 수정 소스 축적 — Stop 게이트의 입력 |
-| `inject-phase.js` | UserPromptSubmit | 단계별 규약 텍스트 (`RULES` 상수) |
-| `gate-stop.js` | Stop | `dirty.txt` 비어있지 않음 + verify 미통과 → block |
+문서는 방향을 잡는 도구이지 코드를 막는 관문이 아니다. 규칙은 `reference/stage-rules.md` 의 `문서 관여 수준` 에 있다:
+작은 변경은 문서를 건드리지 않고, 중간 변경은 먼저 구현한 뒤 한 줄로 반영하며, 큰 변경은 한 번만 묻고 어느 답이든 진행한다.
+문서 정합성을 이유로 모델이 사용자 요청을 거절하거나 미루게 만드는 스킬 문구를 쓰지 않는다.
 
-`gate-write.js` 의 판정 순서에 의미가 있다. 승인 문서 `ask` 승격이 문서 경로 허용보다 **먼저** 와야 한다 — 순서를 바꾸면 `review.md` 가 `docGlobs` 의 `**/*.md` 에 걸려 그냥 통과한다.
+### 읽기 쉬운 문서
 
-### 훅 작성 규약
-
-- **모든 경로에서 `exit 0`.** `wf.emit()` 을 쓰고, `main()` 을 `try/catch` 로 감싼다. 훅 오류가 작업을 막으면 사용자는 훅을 꺼버린다.
-- **무간섭 = 무출력.** `wf.emit(null)`.
-- **`jq` 를 쓰지 마라.** 이 환경에 없다. stdin JSON은 `wf.readStdin()` 으로 읽는다.
-- **`hooks.json` 은 `args` 배열 형식.** 셸을 거치지 않아 공백 든 Windows 경로에서 안전하다.
-- 차단 사유에는 **해법을 함께 적는다.** "금지됨"만으로는 모델이 헤맨다.
-- `Stop` 훅에서 `decision: block` 을 쓸 때는 `stop_hook_active` 확인 + 횟수 상한 (`gate-stop.js` 의 `MAX_BLOCKS_PER_TASK`).
-
-### 경로 처리
-
-Windows 대상이므로 `wf.norm()` 으로 역슬래시→슬래시 + 소문자 정규화한 뒤 비교한다.
-글롭 매처는 `wf.globToRe()` 자체 구현이다 (`**/`, `**`, `*`, `?` 지원). 의존성을 추가하지 마라.
+모든 단계 문서에는 3줄 이하의 `한눈에` 요약과 길이 예산(`stage-rules.md`)이 있다. 예산을 넘으면 하위 페이지로 쪼갠다.
+템플릿은 짧게 유지한다. 템플릿에 절 하나를 더하면 모든 사용자에게 읽기 비용이 생긴다.
 
 ### 시간 처리
 
-저장값과 표시값을 섞지 마라.
+저장값과 표시값을 섞지 않는다.
 
-- **저장·비교·만료 판정은 UTC ISO** (`new Date().toISOString()`).
-  `state.json` 의 `updated`, `gate.log`, `override.json` 의 `until`·`at` 이 여기 해당한다.
-- **사람이 읽는 날짜·시각은 로컬 시간대.** `wf.localDate()` / `wf.localStamp()` 를 쓴다.
-  문서 템플릿의 `{{DATE}}`, 우회 만료 안내가 여기 해당한다.
+- **저장·비교는 UTC ISO** (`new Date().toISOString()`).
+- **사람이 읽는 날짜는 로컬 시간대.** `wf.localDate()` / `wf.localStamp()` 를 쓴다. 템플릿의 `{{DATE}}` 가 여기에 해당한다.
 
-`toISOString().slice(0, 10)` 을 사람이 볼 날짜에 쓰면 UTC 기준이라 하루 어긋난다.
-KST 새벽 0~9시에 만든 문서에 전날 날짜가 박히는 버그가 실제로 있었다.
+사람이 읽는 날짜에 `toISOString().slice(0, 10)` 을 쓰면 UTC 기준이라 KST 00:00~09:00 사이에는 하루 전 날짜가 된다.
 
 ### 마커 형식
 
-산출물 문서의 기계 판독용 블록은 HTML 주석이다. 사람이 읽는 문서 안에 있어도 렌더링에 방해되지 않는다.
+기계 판독용 블록은 HTML 주석이라 Markdown·HTML 렌더링을 해치지 않는다. `wf.readMarker(file, kind)` 로 파싱한다.
 
-```
-<!-- wf:review
-task: T-001
-decision: approved
--->
-```
+## 코드 규칙
 
-`wf.readMarker(file, kind)` 로 파싱한다. 새 산출물을 추가하면 같은 형식을 쓴다.
+### 크기 제한
 
-## 코드 규약
-
-### 크기 한계
-
-넘으면 쪼갠다: 파일 300줄, 함수 50줄, 매개변수 5개, 함수당 분기 10개.
-
-**예외는 `gate-write.js` 의 `main()` 하나다** (83줄 / 분기 19개).
-이 함수는 판정 순서 자체가 규약이라, 헬퍼로 분해하면 순서가 호출부에서 보이지 않게 된다.
-쪼개지 마라. 그리고 다른 곳에서 이 예외를 선례로 삼지 마라.
-
-`wfctl.js` 는 343줄로 한계를 넘겼다. 명령을 더할 때는 파일 분리를 먼저 검토한다.
+초과하면 분리한다: 파일당 300줄, 함수당 50줄, 매개변수 5개, 함수당 분기 10개. 예외 없음.
 
 ### 검증
 
-**테스트 프레임워크를 도입하지 마라.** 무의존성이 이 플러그인의 제약이다.
-새 코드는 파이프 테스트와 `wfctl` 수동 구동으로 검증한다 (`## 명령` 절).
-훅을 고치면 차단 경로와 허용 경로를 **둘 다** 확인한다. 허용 경로의 무출력을 반드시 본다.
+**테스트 프레임워크를 도입하지 않는다.** 의존성 없음이 이 플러그인의 제약이다.
+임시 디렉터리에서 `wfctl` 을 직접 돌려 검증한다: `init`, 바뀐 템플릿마다 `new`, `status`, `sync`, 오류 경로(없는 단계, 잘못된 slug, 빈 deploy).
+템플릿을 고친 뒤에는 생성된 파일에 `{{...}}` 자리표시자가 모두 치환됐는지 확인한다.
 
 ### 스타일
 
-- 상수에 이름을 준다 (`MAX_BLOCKS_PER_TASK`, `PHASE_MSG`, `ORDER`). 판정에 리터럴을 직접 쓰지 마라.
-- 가드절을 먼저 쓴다. 훅의 기본형은 "관심 없는 입력이면 즉시 `wf.emit(null)`" 이다.
-- 부수효과(파일 쓰기, stdout)는 끝단에 모은다. `wf.js` 의 판정 함수는 입력만 보고 답하게 유지한다.
-- 예외는 구체적으로 잡는다. 단 훅 최상위 `try/catch` 는 의도된 예외다 — 어떤 오류에서도 `exit 0` 이어야 한다.
-- 이름은 의도를 드러낸다. 추상화는 같은 것이 세 번 나온 뒤에 한다.
+- 상수에 이름을 붙인다(`STAGES`, `HUB_FILE`, `CHECK_TIMEOUT_MS`). 판정에 리터럴을 직접 넣지 않는다.
+- 가드 절을 먼저 쓴다.
+- 부수 효과(파일 쓰기, stdout, 자식 프로세스)는 `wfctl.js` 에 둔다. `wf.js` 함수는 입력만으로 답한다(`.workflow/` 읽기는 예외).
+- 주석은 한 줄 이하.
+- 이름이 의도를 드러내게 한다. 같은 것이 세 번 나온 뒤에야 추상화한다.
 
-## 스킬 작성 규약
+## 스킬 작성 규칙
 
-- 스킬 본문에서 `wfctl` 은 `node "${CLAUDE_PLUGIN_ROOT}/scripts/wfctl.js"` 로 호출한다
-- 스킬이 `state.json` 을 직접 편집하게 하지 마라 — 반드시 `wfctl` 을 거친다
-- `frontmatter` 의 `description` 에 **사용자가 실제로 쓸 법한 한국어 표현**을 넣는다 (모델이 이걸로 스킬을 고른다)
-- 사람의 판단이 필요한 지점은 `AskUserQuestion` 을 명시적으로 지시한다. "사용자에게 물어라"만으로는 건너뛴다
+- `wfctl` 은 `node "${CLAUDE_PLUGIN_ROOT}/scripts/wfctl.js"` 로 호출한다
+- 단계 스킬은 `${CLAUDE_PLUGIN_ROOT}/reference/stage-rules.md` 를 읽는 것으로 시작한다. 공통 규칙은 각 스킬에 복사하지 말고 거기에 둔다
+- 스킬이 완료를 지어내지 않게 한다: 마커 `status` 는 사용자가 `AskUserQuestion` 으로 확인한 뒤에만 바꾼다
+- frontmatter 의 `description` 에 **사용자가 실제로 입력할 한국어 표현**을 넣는다(모델이 이걸로 스킬을 고른다)
+- 사람 판단이 필요한 곳에는 `AskUserQuestion` 을 명시한다. "사용자에게 묻는다"만으로는 건너뛰어진다
+- 스킬 본문은 짧게 — 60줄 안팎
 
-## 강제의 한계 (문서에 반드시 유지할 것)
+## 강제의 한계 (문서에 남겨 둘 것)
 
-훅은 파일 내용만 보고 **누가 썼는지 알 수 없다.** 따라서 "사람이 승인했다"는 사실 자체는 강제 불가다.
-현재 구조의 대안은 승인 문서 쓰기를 `permissionDecision: "ask"` 로 승격시켜 실제 권한 프롬프트를 띄우는 것이다.
-`bypassPermissions` / `dontAsk` 모드에서는 이마저 무력하다.
+아무것도 강제되지 않는다. 훅이 없고, 단계 순서·사람 확인 지점·마커 갱신은 스킬이 지시하는 규약이다.
+사람 확인 지점(와이어프레임 승인, 사용성 테스트 결과, 내부 테스트 처리 방침, 릴리즈 결정)은 모델이 `AskUserQuestion` 지시를 따르는 데 달려 있다.
 
-이 한계를 README에서 지우지 마라. 강제되지 않는 것을 강제된다고 적으면 시스템 전체의 신뢰가 무너진다.
+이 한계를 README 에서 지우지 않는다. 강제되지 않는 것을 강제된다고 문서화하면 시스템 전체에 대한 신뢰가 무너진다.

@@ -1,7 +1,7 @@
 {
   "name": "vibe-workflow",
-  "version": "0.1.0",
-  "description": "바이브코딩을 define -> plan -> review -> build -> verify 상태머신으로 고정한다. 각 단계는 스킬로, 단계 전이 규약은 결정론적 훅으로 강제된다.",
+  "version": "0.2.0",
+  "description": "기획 → UX → UI → 개발 → 릴리즈 10단계 바이브코딩 워크플로우. 허브 문서 하나와 단계별 위키 문서를 스킬로 만들며 개발한다. 훅 없음.",
   "author": {
     "name": "R00neyj",
     "email": "yjw1555@gmail.com",

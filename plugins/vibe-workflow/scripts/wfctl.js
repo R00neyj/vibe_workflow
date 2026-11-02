@@ -1,343 +1,232 @@
 #!/usr/bin/env node
 'use strict'
-// wfctl - vibe-workflow 상태 제어 CLI
-// 스킬이 state.json 을 손으로 편집하지 않게 하려고 둔다.
-// 단계 전이 규칙을 여기서 한 번 더 검사하므로 훅과 함께 이중 방어가 된다.
-//
-// 사용: node wfctl.js <command> [args]
+// wfctl — vibe-workflow 산출물 생성·진행 확인·체크/배포 실행 CLI.
 
 const fs = require('fs')
 const path = require('path')
 const cp = require('child_process')
-const wf = require('../hooks/lib/wf.js')
+const wf = require('./lib/wf.js')
 
-const VERSION = '0.1.0'
-const ORDER = ['define', 'plan', 'review', 'build', 'verify']
+const VERSION = '0.2.0'
+const CHECK_TIMEOUT_MS = 15 * 60 * 1000
+const OUTPUT_TAIL_LINES = 25
+const SLUG_RE = /^[a-z0-9][a-z0-9-]*$/
+const DEPLOY_TARGETS = ['prerelease', 'release']
 
-function die(msg, code) {
+function die(msg) {
   process.stderr.write(msg + '\n')
-  process.exit(code === undefined ? 1 : code)
+  process.exit(1)
 }
 
-function root(required) {
+function requireRoot() {
   const r = wf.findRoot(process.cwd())
-  if (!r && required !== false) {
-    die('이 디렉터리에서 .workflow/state.json 을 찾지 못했다. 먼저 `wfctl init` 을 실행하라.')
-  }
+  if (!r) die('.workflow/config.json 을 찾지 못함. 먼저 `wfctl init` 실행.')
   return r
 }
 
 function templateDir() { return path.join(__dirname, '..', 'templates') }
 
-function copyTemplate(name, dest, vars) {
-  let text = fs.readFileSync(path.join(templateDir(), name), 'utf8')
-  const keys = Object.keys(vars || {})
-  for (let i = 0; i < keys.length; i++) {
-    text = text.split('{{' + keys[i] + '}}').join(vars[keys[i]])
-  }
+function render(templateRel, vars) {
+  let text = fs.readFileSync(path.join(templateDir(), templateRel), 'utf8')
+  for (const k of Object.keys(vars)) text = text.split('{{' + k + '}}').join(vars[k])
+  return text
+}
+
+function writeNew(dest, text, force) {
+  if (fs.existsSync(dest) && !force) return false
   fs.mkdirSync(path.dirname(dest), { recursive: true })
   fs.writeFileSync(dest, text)
+  return true
 }
 
 // --- init ---------------------------------------------------------------
 
-function detectChecks(dir) {
-  const checks = {
-    test: { enabled: false, command: '' },
-    build: { enabled: false, command: '' },
-    lint: { enabled: false, command: '' },
-    typecheck: { enabled: false, command: '' },
+function readPackageScripts(dir) {
+  try { return JSON.parse(fs.readFileSync(path.join(dir, 'package.json'), 'utf8')).scripts || {} } catch (e) { return {} }
+}
+
+function detectConfig(dir) {
+  const cfg = JSON.parse(JSON.stringify(wf.DEFAULT_CONFIG))
+  const s = readPackageScripts(dir)
+  for (const name of ['test', 'build', 'lint', 'typecheck']) {
+    if (s[name]) cfg.checks[name] = { enabled: true, command: 'npm run ' + name + ' --silent' }
   }
-  let pkg = null
-  try { pkg = JSON.parse(fs.readFileSync(path.join(dir, 'package.json'), 'utf8')) } catch (e) { pkg = null }
-  if (pkg && pkg.scripts) {
-    const s = pkg.scripts
-    if (s.test) { checks.test = { enabled: true, command: 'npm test --silent' } }
-    if (s.build) { checks.build = { enabled: true, command: 'npm run build --silent' } }
-    if (s.lint) { checks.lint = { enabled: true, command: 'npm run lint --silent' } }
-    if (s.typecheck) { checks.typecheck = { enabled: true, command: 'npm run typecheck --silent' } }
+  if (!cfg.checks.typecheck.enabled && fs.existsSync(path.join(dir, 'tsconfig.json'))) {
+    cfg.checks.typecheck = { enabled: true, command: 'npx tsc --noEmit' }
   }
-  if (!checks.typecheck.enabled && fs.existsSync(path.join(dir, 'tsconfig.json'))) {
-    checks.typecheck = { enabled: true, command: 'npx tsc --noEmit' }
-  }
-  if (!checks.test.enabled) {
-    const py = ['pytest.ini', 'pyproject.toml', 'tox.ini'].some(function (f) {
-      return fs.existsSync(path.join(dir, f))
-    })
-    if (py && fs.existsSync(path.join(dir, 'tests'))) {
-      checks.test = { enabled: true, command: 'python -m pytest -q' }
-    }
-  }
-  return checks
+  if (s.dev) cfg.run = 'npm run dev'
+  else if (s.start) cfg.run = 'npm start'
+  return cfg
 }
 
 function cmdInit(args) {
   const dir = process.cwd()
-  const wfd = path.join(dir, '.workflow')
-  const force = args.indexOf('--force') !== -1
-
-  if (fs.existsSync(path.join(wfd, 'state.json')) && !force) {
-    die('.workflow 가 이미 있다. 덮어쓰려면 --force 를 붙여라.')
+  const cfgFile = path.join(dir, wf.WF_DIR, wf.CONFIG_FILE)
+  if (fs.existsSync(cfgFile) && args.indexOf('--force') === -1) {
+    die('.workflow 가 이미 있음. 설정을 다시 감지하려면 --force.')
   }
-
-  fs.mkdirSync(path.join(wfd, 'tasks'), { recursive: true })
-
-  const cfg = Object.assign({}, wf.DEFAULT_CONFIG, { checks: detectChecks(dir) })
-  fs.writeFileSync(path.join(wfd, 'config.json'), JSON.stringify(cfg, null, 2) + '\n')
-  fs.writeFileSync(
-    path.join(wfd, 'state.json'),
-    JSON.stringify({ version: 1, phase: 'define', task: null, updated: new Date().toISOString() }, null, 2) + '\n'
-  )
-  fs.writeFileSync(
-    path.join(wfd, '.gitignore'),
-    ['dirty.txt', 'gate.log', 'stopguard.json', 'override.json', 'tasks/*/checks.json', ''].join('\n')
-  )
-
-  const stamp = wf.localDate()
-  for (const t of [
-    ['requirements.md', 'requirements.md'],
-    ['architecture.md', 'architecture.md'],
-    ['backlog.yaml', 'backlog.yaml'],
-  ]) {
-    const dest = path.join(wfd, t[1])
-    if (!fs.existsSync(dest)) copyTemplate(t[0], dest, { DATE: stamp, PROJECT: path.basename(dir) })
-  }
-
-  console.log('.workflow 생성 완료 (phase=define)')
-  const enabled = Object.keys(cfg.checks).filter(function (k) { return cfg.checks[k].enabled })
-  console.log('감지된 자동 체크: ' + (enabled.length ? enabled.join(', ') : '없음 - config.json 에 직접 채워라'))
+  const cfg = detectConfig(dir)
+  fs.mkdirSync(path.dirname(cfgFile), { recursive: true })
+  fs.writeFileSync(cfgFile, JSON.stringify(cfg, null, 2) + '\n')
+  const hub = path.join(dir, wf.WF_DIR, wf.HUB_FILE)
+  writeNew(hub, render(wf.HUB_FILE, { DATE: wf.localDate(), PROJECT: path.basename(dir) }), false)
+  syncHub(dir)
+  console.log('.workflow 생성 완료 — 허브: .workflow/' + wf.HUB_FILE)
+  console.log('감지된 체크: ' + (wf.enabledChecks(cfg).join(', ') || '없음'))
+  console.log('실행 명령  : ' + (cfg.run || '없음'))
+  console.log('다음 단계  : /wf-brief (1. 사전조사·기획서)')
 }
 
 // --- status -------------------------------------------------------------
 
+/** 허브의 index 블록을 재생성. 허브가 없거나 블록이 없으면 false. */
+function syncHub(r) {
+  const hub = path.join(wf.wfDir(r), wf.HUB_FILE)
+  let text
+  try { text = fs.readFileSync(hub, 'utf8') } catch (e) { return false }
+  const next = wf.replaceIndexBlock(text, wf.renderIndex(wf.progress(r)))
+  if (next === null) return false
+  if (next !== text) fs.writeFileSync(hub, next)
+  return true
+}
+
+function cmdSync() {
+  const r = requireRoot()
+  if (!syncHub(r)) die('.workflow/' + wf.HUB_FILE + ' 가 없거나 wf:index 블록이 없음. 템플릿의 begin/end 마커 두 줄을 복구.')
+  console.log('허브 갱신: .workflow/' + wf.HUB_FILE)
+}
+
 function cmdStatus() {
-  const r = root()
-  const st = wf.readState(r)
-  const cfg = wf.readConfig(r)
-  const rs = st.task ? wf.reviewStatus(r, st.task) : '-'
-  const vs = st.task ? wf.verifyStatus(r, st.task) : null
-  const dirty = wf.readDirty(r)
-  const ov = wf.overrideActive(r)
-
-  console.log('프로젝트   : ' + r)
-  console.log('단계       : ' + st.phase)
-  console.log('현재 task  : ' + (st.task || '(없음)'))
-  console.log('계획 승인  : ' + rs)
-  console.log('검증       : ' + (vs ? (vs.ok ? 'ok' : '미완료 [' + [].concat(vs.missing, vs.failed).join(', ') + ']') : '-'))
-  console.log('수정된 소스: ' + dirty.length + '개' + (dirty.length ? ' (' + dirty.slice(0, 5).join(', ') + ')' : ''))
-  console.log('게이트 우회: ' + (ov ? '활성 ~' + wf.localStamp(ov.until) + ' / ' + (ov.reason || '') : '없음'))
-  const enabled = Object.keys(cfg.checks).filter(function (k) { return cfg.checks[k].enabled })
-  console.log('자동 체크  : ' + (enabled.length ? enabled.join(', ') : '없음'))
-}
-
-// --- phase --------------------------------------------------------------
-
-function cmdPhase(args) {
-  const r = root()
-  const target = args[0]
-  if (ORDER.indexOf(target) === -1 && target !== 'idle') {
-    die('단계는 ' + ORDER.join(' | ') + ' | idle 중 하나여야 한다.')
-  }
-  const st = wf.readState(r)
-  let task = st.task
-  const ti = args.indexOf('--task')
-  if (ti !== -1 && args[ti + 1]) task = args[ti + 1]
-
-  if (target === 'build') {
-    if (!task) die('build 로 가려면 --task 로 대상 task 를 지정해야 한다.')
-    const rs = wf.reviewStatus(r, task)
-    if (rs !== 'approved') {
-      die('계획이 승인되지 않아 build 로 갈 수 없다 (review=' + rs + ').\n' +
-          '.workflow/tasks/' + task + '/review.md 의 decision 을 approved 로 만들어야 한다.')
+  const r = requireRoot()
+  const p = wf.progress(r)
+  console.log('프로젝트: ' + r)
+  for (const phase of wf.PHASES) {
+    console.log('\n[' + phase + ']')
+    for (const row of p.rows.filter(function (x) { return x.stage.phase === phase })) {
+      const mark = row.complete ? 'v' : (p.next === row.stage ? '>' : ' ')
+      const s = row.stage
+      console.log(' ' + mark + ' ' + String(s.n).padStart(2) + '. ' + s.title + ' — ' + wf.statusLabel(row) + '  (.workflow/' + s.file + ')')
     }
   }
-  if (target === 'review' && task) {
-    if (!fs.existsSync(path.join(wf.taskDir(r, task), 'plan.md'))) {
-      die('plan.md 가 없어 review 로 갈 수 없다: .workflow/tasks/' + task + '/plan.md')
-    }
-  }
-
-  const next = wf.writeState(r, { phase: target, task: task })
-  if (target === 'plan' || target === 'define' || target === 'idle') wf.clearDirty(r)
-  try { fs.rmSync(path.join(wf.wfDir(r), 'stopguard.json'), { force: true }) } catch (e) { /* 무시 */ }
-  console.log('단계 전이: ' + st.phase + ' -> ' + next.phase + (task ? ' (task=' + task + ')' : ''))
+  if (!p.next) return console.log('\n전 단계 완료. 기능 추가 시 /wf-spec 부터 다시 진행.')
+  console.log('\n다음: ' + p.next.n + '. ' + p.next.title + ' → /' + p.next.skill)
 }
 
-// --- task ---------------------------------------------------------------
+// --- new / screen -------------------------------------------------------
 
-function nextTaskId(r) {
-  const dir = path.join(wf.wfDir(r), 'tasks')
-  let max = 0
+function cmdNew(args) {
+  const r = requireRoot()
+  const stage = wf.findStage(args[0])
+  if (!stage) die('사용법: wfctl new <단계>  단계: ' + wf.STAGES.map(function (s) { return s.key }).join(' | '))
+  const force = args.indexOf('--force') !== -1
+  const vars = { DATE: wf.localDate(), PROJECT: path.basename(r), NAV: wf.navLine(stage) }
+  for (const pair of wf.stageTemplates(stage)) {
+    const rel = path.join(wf.WF_DIR, pair[1])
+    const made = writeNew(path.join(r, rel), render(pair[0], vars), force)
+    console.log((made ? '생성: ' : '이미 있음(유지): ') + rel.replace(/\\/g, '/'))
+  }
+  syncHub(r)
+}
+
+function cmdScreen(args) {
+  const r = requireRoot()
+  const slug = args[0]
+  const title = args.slice(1).join(' ').trim()
+  if (!slug || !SLUG_RE.test(slug) || !title) die('사용법: wfctl screen <slug(영소문자·숫자·-)> "<화면명>"')
+  const rel = path.join(wf.WF_DIR, '04-wireframe', slug + '.html')
+  const made = writeNew(path.join(r, rel), render('04-wireframe/screen.html', { SLUG: slug, TITLE: title }), false)
+  console.log((made ? '생성: ' : '이미 있음(유지): ') + rel.replace(/\\/g, '/'))
+}
+
+// --- check / deploy -----------------------------------------------------
+
+function runCommand(root, command) {
   try {
-    for (const name of fs.readdirSync(dir)) {
-      const m = name.match(/^T-(\d+)$/)
-      if (m) max = Math.max(max, parseInt(m[1], 10))
-    }
-  } catch (e) { /* 디렉터리 없음 */ }
-  return 'T-' + String(max + 1).padStart(3, '0')
-}
-
-function cmdTaskNew(args) {
-  const r = root()
-  const title = args.join(' ').trim()
-  if (!title) die('사용법: wfctl task-new "<작업 제목>"')
-  const id = nextTaskId(r)
-  const dest = path.join(wf.taskDir(r, id), 'plan.md')
-  copyTemplate('plan.md', dest, { TASK: id, TITLE: title, DATE: wf.localDate() })
-  wf.writeState(r, { phase: 'plan', task: id })
-  wf.clearDirty(r)
-  console.log('task 생성: ' + id + ' — ' + title)
-  console.log('계획 파일: .workflow/tasks/' + id + '/plan.md')
-  console.log('단계를 plan 으로 전이했다.')
-}
-
-function cmdTaskList() {
-  const r = root()
-  const dir = path.join(wf.wfDir(r), 'tasks')
-  let names = []
-  try { names = fs.readdirSync(dir).filter(function (n) { return /^T-\d+$/.test(n) }).sort() } catch (e) { names = [] }
-  if (!names.length) return console.log('task 가 없다.')
-  const st = wf.readState(r)
-  for (const id of names) {
-    const mk = wf.readMarker(path.join(dir, id, 'plan.md'), 'plan') || {}
-    const vs = wf.verifyStatus(r, id)
-    console.log(
-      (id === st.task ? '* ' : '  ') + id +
-      '  review=' + wf.reviewStatus(r, id) +
-      '  verify=' + (vs.ok ? 'ok' : 'pending') +
-      '  ' + (mk.title || '')
-    )
+    const out = cp.execSync(command, { cwd: root, stdio: ['ignore', 'pipe', 'pipe'], encoding: 'utf8', timeout: CHECK_TIMEOUT_MS })
+    return { code: 0, out: out }
+  } catch (e) {
+    return { code: typeof e.status === 'number' ? e.status : 1, out: String((e.stdout || '') + (e.stderr || '')) }
   }
 }
 
-// --- check --------------------------------------------------------------
+function printRun(name, command, res) {
+  console.log('\n=== ' + name + ': ' + command)
+  console.log(res.out.split('\n').slice(-OUTPUT_TAIL_LINES).join('\n').trim())
+  console.log('--- ' + name + ' => ' + (res.code === 0 ? 'pass' : 'fail (exit ' + res.code + ')'))
+}
 
 function cmdCheck(args) {
-  const r = root()
+  const r = requireRoot()
   const cfg = wf.readConfig(r)
-  const st = wf.readState(r)
-  const only = args.filter(function (a) { return a.indexOf('--') !== 0 })
-  const names = Object.keys(cfg.checks).filter(function (k) {
-    const c = cfg.checks[k]
-    if (!c.enabled || !String(c.command || '').trim()) return false
-    return only.length === 0 || only.indexOf(k) !== -1
+  const names = wf.enabledChecks(cfg).filter(function (k) { return !args.length || args.indexOf(k) !== -1 })
+  if (!names.length) return console.log('실행할 체크 없음. .workflow/config.json 의 checks 확인.')
+  const results = names.map(function (name) {
+    const res = runCommand(r, cfg.checks[name].command)
+    printRun(name, cfg.checks[name].command, res)
+    return name + '=' + (res.code === 0 ? 'pass' : 'fail')
   })
+  console.log('\n요약: ' + results.join('  '))
+  if (results.some(function (x) { return /=fail$/.test(x) })) process.exitCode = 1
+}
 
-  if (!names.length) {
-    console.log('실행할 자동 체크가 없다. .workflow/config.json 의 checks 를 확인하라.')
+function cmdDeploy(args) {
+  const r = requireRoot()
+  const target = args[0]
+  if (DEPLOY_TARGETS.indexOf(target) === -1) die('사용법: wfctl deploy <' + DEPLOY_TARGETS.join('|') + '>')
+  const command = String(wf.readConfig(r).deploy[target] || '').trim()
+  if (!command) {
+    console.log('config.json 의 deploy.' + target + ' 가 비어 있음. 수동 배포 후 결과만 문서에 기록.')
     return
   }
-
-  const results = {}
-  let allOk = true
-  for (const name of names) {
-    const command = cfg.checks[name].command
-    process.stdout.write('\n=== ' + name + ': ' + command + '\n')
-    let code = 0
-    let out = ''
-    try {
-      out = cp.execSync(command, { cwd: r, stdio: ['ignore', 'pipe', 'pipe'], encoding: 'utf8', timeout: 15 * 60 * 1000 })
-    } catch (e) {
-      code = typeof e.status === 'number' ? e.status : 1
-      out = String((e.stdout || '') + (e.stderr || ''))
-    }
-    const tail = out.split('\n').slice(-25).join('\n')
-    process.stdout.write(tail.trim() + '\n')
-    process.stdout.write('--- ' + name + ' => ' + (code === 0 ? 'pass' : 'fail (exit ' + code + ')') + '\n')
-    results[name] = { status: code === 0 ? 'pass' : 'fail', exit: code }
-    if (code !== 0) allOk = false
-  }
-
-  if (st.task) {
-    const dest = path.join(wf.taskDir(r, st.task), 'checks.json')
-    fs.mkdirSync(path.dirname(dest), { recursive: true })
-    fs.writeFileSync(dest, JSON.stringify({ task: st.task, at: new Date().toISOString(), results: results }, null, 2) + '\n')
-  }
-
-  console.log('\n요약: ' + names.map(function (n) { return n + '=' + results[n].status }).join('  '))
-  console.log(allOk ? '자동 체크 전부 통과' : '실패한 체크가 있다. verify.md 에 fail 로 기록하고 고쳐라.')
-  console.log('이 결과를 verify.md 의 wf:verify 마커에 그대로 옮겨 적어라. 실행하지 않은 항목에 pass 를 적지 마라.')
+  const res = runCommand(r, command)
+  printRun('deploy:' + target, command, res)
+  if (res.code !== 0) process.exitCode = 1
 }
 
-// --- override -----------------------------------------------------------
-
-function cmdOverride(args) {
-  const r = root()
-  const minutes = parseInt(args[0], 10)
-  const reason = args.slice(1).join(' ').trim()
-  if (!minutes || minutes < 1 || minutes > 480) die('사용법: wfctl override <분(1-480)> "<사유>"')
-  if (!reason) die('우회에는 사유가 필요하다.')
-  const until = new Date(Date.now() + minutes * 60000).toISOString()
-  fs.writeFileSync(
-    path.join(wf.wfDir(r), 'override.json'),
-    JSON.stringify({ until: until, reason: reason, at: new Date().toISOString() }, null, 2) + '\n'
-  )
-  wf.log(r, 'OVERRIDE-OPEN', minutes + '분\t' + reason)
-  console.log('게이트 우회를 ' + minutes + '분간 연다 (~' + wf.localStamp(until) + ')')
-  console.log('사유: ' + reason)
-  console.log('우회 중 쓰기는 .workflow/gate.log 에 기록된다. 끝나면 `wfctl override-clear`.')
-}
-
-function cmdOverrideClear() {
-  const r = root()
-  try { fs.rmSync(path.join(wf.wfDir(r), 'override.json'), { force: true }) } catch (e) { /* 무시 */ }
-  wf.log(r, 'OVERRIDE-CLOSE', '')
-  console.log('게이트 우회를 닫았다.')
-}
-
-// --- 기타 ---------------------------------------------------------------
-
-function cmdClearDirty() {
-  const r = root()
-  wf.clearDirty(r)
-  console.log('수정 파일 기록을 비웠다.')
-}
+// --- doctor -------------------------------------------------------------
 
 function cmdDoctor() {
-  const r = root(false)
   console.log('wfctl ' + VERSION + ' / node ' + process.version + ' / ' + process.platform)
   console.log('플러그인 경로: ' + path.resolve(__dirname, '..'))
-  if (!r) return console.log('현재 위치에 .workflow 없음 (워크플로우 미적용 프로젝트)')
+  const r = wf.findRoot(process.cwd())
+  if (!r) return console.log('현재 위치에 .workflow 없음')
+  const cfg = wf.readConfig(r)
   console.log('프로젝트 루트: ' + r)
-  const files = ['state.json', 'config.json', 'requirements.md', 'architecture.md', 'backlog.yaml']
-  for (const f of files) {
-    console.log('  ' + (fs.existsSync(path.join(wf.wfDir(r), f)) ? 'O' : 'X') + ' .workflow/' + f)
-  }
+  console.log('체크  : ' + (wf.enabledChecks(cfg).join(', ') || '없음'))
+  console.log('실행  : ' + (cfg.run || '없음'))
+  console.log('배포  : prerelease=' + (cfg.deploy.prerelease || '없음') + ' / release=' + (cfg.deploy.release || '없음'))
 }
 
 const HELP = [
-  'wfctl ' + VERSION + ' — vibe-workflow 상태 제어',
+  'wfctl ' + VERSION + ' — vibe-workflow',
   '',
-  '  init [--force]              현재 디렉터리에 .workflow 를 만든다',
-  '  status                      현재 단계와 게이트 상태를 출력한다',
-  '  phase <단계> [--task ID]    단계를 전이한다 (define|plan|review|build|verify|idle)',
-  '  task-new "<제목>"           다음 task 를 만들고 plan 단계로 전이한다',
-  '  task-list                   task 목록과 게이트 상태',
-  '  check [이름...]             config 의 자동 체크를 실제로 실행한다',
-  '  override <분> "<사유>"      게이트를 한시적으로 연다',
-  '  override-clear              우회를 닫는다',
-  '  clear-dirty                 수정 파일 기록을 비운다',
-  '  doctor                      설치/설정 점검',
+  '  init [--force]             .workflow/config.json 생성 (체크·실행 명령 자동 감지)',
+  '  status                     10단계 진행 상황과 다음 단계',
+  '  sync                       허브(README.md) 진행 표를 마커 기준으로 다시 그림',
+  '  new <단계> [--force]      단계 산출물 템플릿 생성 (단계 키 또는 번호)',
+  '  screen <slug> "<화면명>"   와이어프레임 화면 파일 생성',
+  '  check [이름...]            config 의 체크 실행',
+  '  deploy <prerelease|release> config 의 배포 명령 실행',
+  '  doctor                     설치·설정 점검',
 ].join('\n')
+
+const COMMANDS = {
+  init: cmdInit,
+  status: cmdStatus,
+  sync: cmdSync,
+  new: cmdNew,
+  screen: cmdScreen,
+  check: cmdCheck,
+  deploy: cmdDeploy,
+  doctor: cmdDoctor,
+  '--version': function () { console.log(VERSION) },
+}
 
 function main() {
   const argv = process.argv.slice(2)
-  const cmd = argv[0]
-  const rest = argv.slice(1)
-  switch (cmd) {
-    case 'init': return cmdInit(rest)
-    case 'status': return cmdStatus()
-    case 'phase': return cmdPhase(rest)
-    case 'task-new': return cmdTaskNew(rest)
-    case 'task-list': return cmdTaskList()
-    case 'check': return cmdCheck(rest)
-    case 'override': return cmdOverride(rest)
-    case 'override-clear': return cmdOverrideClear()
-    case 'clear-dirty': return cmdClearDirty()
-    case 'doctor': return cmdDoctor()
-    case '--version': return console.log(VERSION)
-    default: return console.log(HELP)
-  }
+  const fn = COMMANDS[argv[0]]
+  if (!fn) return console.log(HELP)
+  return fn(argv.slice(1))
 }
 
 main()
