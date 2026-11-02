@@ -1,30 +1,30 @@
 ---
 name: wf-spec
-description: vibe-workflow 2단계(기획). 기획서를 바탕으로 기능 명세를 작성한다. 기능 ID·우선순위·핵심 기능·수용 기준을 정해 02-spec.md 에 쓴다. "기능 명세", "기능 정리", "기능 목록 뽑아줘", "스펙 작성", "기능 추가 명세" 요청에 사용한다.
+description: vibe-workflow stage 2 (Planning). Write the feature spec from the brief. Settle feature IDs, priorities, core features, and acceptance criteria and write them to 02-spec.md. Use when the user says "feature spec", "list the features", "pull out a feature list", "write the spec", "spec for a new feature".
 ---
 
-# wf-spec — 2. 기능 명세 [기획]
+# wf-spec — 2. Feature spec [Planning]
 
-시작 전 `${CLAUDE_PLUGIN_ROOT}/reference/stage-rules.md` 를 Read 하고 공통 절차를 따름. 단계 키: `spec`.
+Before starting, Read `${CLAUDE_PLUGIN_ROOT}/reference/stage-rules.md` and follow the common procedure. Stage key: `spec`.
 
-## 입력
+## Input
 
-- 기획서(`.workflow/01-brief.md`) — 완성본 목표·성공 기준·범위 제외
+- Brief (`.workflow/01-brief.md`) — target outcome, success criteria, out of scope
 
-## 진행
+## Steps
 
-1. 기획서의 완성본 목표에서 기능 후보를 뽑아 표로 제안함. 각 기능에 근거 절을 링크.
-2. `AskUserQuestion` 으로 받음:
-   - 우선순위(Must/Should/Could/Won't) — 후보가 많으면 Must 부터
-   - **핵심 기능** — 사용자가 이 제품으로 반드시 해내야 하는 일. 1~5개. 7단계 사용성 테스트 과업이 됨
-3. 기능마다 상세 10줄 이하: 목적·입력·동작·결과·예외·수용 기준. 각 기능 앞에 `<a id="f-xx"></a>` 앵커.
-4. 범위 제외 항목과 겹치는 기능이 나오면 표시하고 사용자에게 물음.
-5. 기능이 8개를 넘으면 상세를 `02-spec/F-xx.md` 로 분리(공통 규약 길이 예산).
+1. Extract feature candidates from the brief's target outcome and propose them as a table ("Feature list"). Link each to its source section.
+2. Collect via `AskUserQuestion`:
+   - Priority (Must/Should/Could/Won't) — with many candidates, start with Must
+   - **Core features** — what the user must be able to accomplish with this product. 1-5. They become the stage 7 usability-test tasks
+3. Per feature ("Feature details"), at most 10 lines: purpose, input, behavior, result, exceptions, acceptance criteria. Put an `<a id="f-xx"></a>` anchor before each feature.
+4. If a feature overlaps an out-of-scope item, flag it and ask the user.
+5. Beyond 8 features, split details into `02-spec/F-xx.md` (length budget in the common rules).
 
-## 기능 추가 사이클로 들어온 경우
+## When entered via a feature-add cycle
 
-기존 표에 새 F-ID 행만 추가함. 기존 기능은 고치지 않음(변경이 필요하면 따로 확인).
+Only add new F-ID rows to the existing table. Do not edit existing features (confirm separately if a change is needed).
 
-## 완료
+## Done
 
-사용자 확인 후 `status: done` → 결정 로그 → `WFCTL sync` → `/wf-flow`.
+After user confirmation: `status: done` → Decision log → `WFCTL sync` → `/wf-flow`.

@@ -1,25 +1,25 @@
 ---
 name: wf-init
-description: 프로젝트에 vibe-workflow 를 설치하고 허브 문서(.workflow/README.md)를 만든 뒤 1단계 기획으로 넘어간다. "워크플로우 시작", "새 프로젝트 시작", "바이브코딩 세팅", "vibe-workflow 설치" 요청에 사용한다.
+description: Install vibe-workflow into a project, create the hub document (.workflow/README.md), then move on to stage 1 (Planning). Use when the user says "start the workflow", "start a new project", "set up vibe coding", "install vibe-workflow".
 ---
 
-# wf-init — 설치
+# wf-init — Install
 
 `WFCTL` = `node "${CLAUDE_PLUGIN_ROOT}/scripts/wfctl.js"`
 
-## 절차
+## Procedure
 
-1. 프로젝트 루트에서 `WFCTL init`. 이미 있으면 멈추고 `AskUserQuestion` 으로 `--force`(설정 재감지, 문서는 유지) 여부를 물음.
-2. 출력된 감지 결과(체크·실행 명령)를 사용자에게 보고함. 비어 있어도 지금 채우지 않음 — 6단계에서 정함.
-3. 기존 코드가 있는 프로젝트면 README·매니페스트·디렉터리 구조를 읽고, 허브 `개요` 절에 확인된 사실만 3줄 이하로 적음.
-4. 흐름을 한 번 보여줌:
+1. Run `WFCTL init` at the project root. If already installed, stop and `AskUserQuestion` whether to use `--force` (re-detect config, keep documents).
+2. Report the detected results (checks, run commands) to the user. If empty, do not fill them now; they are decided in stage 6.
+3. For a project with existing code, read the README, manifest, and directory structure, then write only confirmed facts into the hub `Overview` section, at most 3 lines.
+4. Show the flow once:
 
 ```
-기획  1 사전조사·기획서 → 2 기능 명세
-UX    3 UX 플로우차트
-UI    4 저해상도 와이어프레임 → 5 와이어프레임 검토
-개발  6 프로토타입 → 7 사용성 테스트
-릴리즈 8 프리릴리즈 → 9 내부 테스트 → 10 릴리즈
+Planning     1 Research & brief → 2 Feature spec
+UX           3 UX flowchart
+UI           4 Low-fi wireframe → 5 Wireframe review
+Development  6 Prototype → 7 Usability test
+Release      8 Pre-release → 9 Internal test → 10 Release
 ```
 
-5. 허브 경로(`.workflow/README.md`)를 알려주고 `/wf-brief` 로 이어감. 단계 이름을 외울 필요 없이 "다음 단계"라고 말하면 된다고 안내함.
+5. Give the hub path (`.workflow/README.md`) and continue to `/wf-brief`. Tell the user they need not memorize stage names; saying "next step" is enough.

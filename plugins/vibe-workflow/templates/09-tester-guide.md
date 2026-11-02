@@ -1,30 +1,30 @@
-# {{PROJECT}} 내부 테스트 안내
+# {{PROJECT}} internal test guide
 
-## 이게 뭔가요
+## What is this
 
-(한두 문장)
+(One or two sentences)
 
-## 접속
+## Access
 
-- 주소:
-- 테스트 계정:
-- 기간:
+- Address:
+- Test account:
+- Period:
 
-## 해 볼 일
+## What to try
 
-방법은 안내하지 않습니다. 평소처럼 해 보시고 막히는 곳을 알려 주세요.
+We won't tell you how. Just try it as you normally would and let us know where you get stuck.
 
 1.
 
-## 피드백 양식
+## Feedback form
 
-과업마다 아래를 복사해 답해 주세요.
+For each task, copy the form below and fill it in.
 
 ```
-과업 번호:
-완료했나요? (예 / 도움받아서 / 못 함)
-어려웠던 정도 (1 매우 어려움 · 2 어려움 · 3 쉬움 · 4 매우 쉬움):
-막힌 곳·헷갈린 곳:
-기기·브라우저:
-그 밖의 의견:
+Task number:
+Did you finish? (yes / with help / couldn't)
+How hard was it? (1 very hard · 2 hard · 3 easy · 4 very easy):
+Where you got stuck or confused:
+Device and browser:
+Anything else:
 ```

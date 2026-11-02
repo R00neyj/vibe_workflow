@@ -1,33 +1,33 @@
 ---
 name: wf-usability
-description: vibe-workflow 7단계(개발). 프로토타입 사용성 테스트를 진행한다. 기획서·기능 명세의 핵심 기능에서 과업을 뽑아 절차 없이 목표만 제시하고, 사용자가 수행하며 막힌 지점을 조사해 수정·재테스트한다. "사용성 테스트", "테스트해볼게", "써보면서 불편한 점", "유저 테스트", "프로토타입 테스트" 요청에 사용한다.
+description: vibe-workflow stage 7 (Development). Run a prototype usability test. Derive tasks from the core features in the brief and feature spec, give only the goal with no steps, investigate where the user got stuck, then fix and retest. Use when the user says "usability test", "I'll test it", "what's awkward when I use it", "user test", "test the prototype".
 ---
 
-# wf-usability — 7. 사용성 테스트 [개발]
+# wf-usability — 7. Usability test [Development]
 
-시작 전 `${CLAUDE_PLUGIN_ROOT}/reference/stage-rules.md` 를 Read 하고 공통 절차를 따름. 단계 키: `usability`.
+Before starting, Read `${CLAUDE_PLUGIN_ROOT}/reference/stage-rules.md` and follow the common procedure. Stage key: `usability`.
 
-## 원칙
+## Principles
 
-- **목표만 알려줌. 방법은 절대 알려주지 않음.** 메뉴명·버튼명·화면명·순서를 과업 문구에 넣지 않음.
-- 테스트 중 사용자가 방법을 물으면 바로 답하지 않고 "어디를 먼저 찾아보셨나요?"를 먼저 기록. 계속 막히면 그때 돕고 결과를 `도움받아 성공` 으로 적음.
-- **성공 기준·예상 경로는 라운드가 끝날 때까지 어디에도 쓰지 않음.** 파일 쓰기 내용도 사용자 화면에 보이므로 문서에 미리 적으면 그대로 노출됨. 컨텍스트에만 두고, 채팅에서도 화면명·버튼명·경로를 언급하지 않음.
+- **Give the goal only. Never give the method.** Do not put menu names, button names, screen names, or order into task prompts.
+- If the user asks how during the test, do not answer right away; first record "Where did you look first?". If they stay stuck, help, and log the result as `success with help`.
+- **Never write success criteria or expected paths anywhere until the round ends.** File-write content is visible on the user's screen, so writing it in the document exposes it. Keep it in context only, and do not mention screen names, button names, or paths in chat either.
 
-## 진행
+## Steps
 
-1. **과업 도출** — 기능 명세(`.workflow/02-spec.md`)의 핵심 기능과 기획서(`.workflow/01-brief.md`)의 성공 기준에서 과업 3~5개. 성공 기준·예상 경로는 머릿속에만 정함.
-2. **과업 문구** — 사용자의 상황과 목표로만. 예: "다음 주 금요일 저녁 모임 일정을 친구들에게 알리고 싶다." (✗ "일정 추가 버튼을 눌러 일정을 만드세요.") 이 문구만 `사용자에게 제시할 과업 문구` 절에 씀.
-3. **진행** — 프로토타입 실행 방법을 알려준 뒤 과업을 **하나씩** 제시. 각 과업이 끝나면 `AskUserQuestion` 한 번에 세 문항으로 받음:
-   - 결과: 성공 / 도움받아 성공 / 실패
-   - 난이도: 매우 어려움(1) / 어려움(2) / 쉬움(3) / 매우 쉬움(4)
-   - 막힌 곳: 없음 / 헷갈린 곳 있음 / 찾지 못한 곳 있음 — 구체 내용은 Other 자유 입력으로
-   "있음"인데 내용이 없으면 어디서 무엇을 기대했는지 한 번 더 물음. 사용자 말을 그대로 라운드 표에 적음.
-4. **진행자 표 기록** — 라운드의 모든 과업이 끝난 뒤에만 `진행자 전용` 표(근거 기능·성공 기준·예상 경로)를 채움.
-5. **문제 정리** — 막힌 지점을 문제(U-xx)로 묶고 심각도: 높음(실패·도움 필요), 중간(난이도 2 이하), 낮음. 원인은 화면·문구·흐름 중 무엇인지 한 줄.
-6. **수정** — 심각도 높음부터 고침. 수정 범위가 크면 공통 규약 `문서 관여 수준` 대로 처리. 수정 파일을 표에 기록.
-7. **재테스트** — 수정한 과업만 새 라운드로 다시 제시. 문구는 같은 목표, 다른 상황으로 바꿔 학습 효과를 줄임.
+1. **Derive tasks** — 3-5 tasks from the core features in the feature spec (`.workflow/02-spec.md`) and the success criteria in the brief (`.workflow/01-brief.md`). Decide success criteria and expected paths in your head only.
+2. **Task prompts** — only the user's situation and goal. Example: "You want to let your friends know about dinner next Friday." (not "Click the Add Event button to create an event.") Write only these prompts into the `Task prompts shown to the user` section.
+3. **Run** — explain how to run the prototype, then present tasks **one at a time**. After each task, collect three questions in one `AskUserQuestion`:
+   - Result: success / success with help / fail
+   - Difficulty: very hard (1) / hard (2) / easy (3) / very easy (4)
+   - Stuck: none / something confusing / couldn't find something — details via Other free input
+   If "something confusing" or "couldn't find something" has no details, ask once more where and what they expected. Record the user's words verbatim in the `Round 1` table.
+4. **Facilitator table** — only after every task in the round is done, fill the `Facilitator only — fill in after the round ends` table (source feature, success criteria, expected path).
+5. **Issues** — group stuck points into issues (U-xx) in `Issues and fixes` with severity: high (fail or needed help), medium (difficulty 2 or lower), low. One line on the cause: screen, copy, or flow.
+6. **Fix** — fix from high severity down. If a fix is large, handle it per the common rules' `Doc involvement level`. Record the fixed files in the table.
+7. **Retest** — present only the fixed tasks in a new round. Keep the same goal but change the situation in the prompt to reduce learning effects.
 
-## 완료
+## Done
 
-최근 라운드에서 핵심 과업이 전부 `성공` 이면 `AskUserQuestion` 확인 → `status: done` → `/wf-next` 의 문서 따라잡기 1회 → `WFCTL sync` → `/wf-prerelease`.
-라운드가 3회를 넘어도 같은 과업이 실패하면 와이어프레임·플로우 재검토를 제안.
+When all core tasks are `success` in the latest round: confirm via `AskUserQuestion` → `status: done` → one doc catch-up from `/wf-next` → `WFCTL sync` → `/wf-prerelease`.
+If the same task still fails after 3 rounds, propose revisiting the wireframes and flow.

@@ -9,7 +9,9 @@ A Korean translation lives in [CLAUDE.ko.md](CLAUDE.ko.md). **This English file 
 This is the source of the `vibe-workflow` Claude Code plugin. What gets built here is **a workflow system meant to be installed into other projects**.
 This repository is not itself a target of that workflow (there is no `.workflow/` here).
 
-The workflow is 10 stages grouped into 5 phases: 기획(1 brief, 2 spec) → UX(3 flow) → UI(4 wireframe, 5 wireframe review) → 개발(6 prototype, 7 usability test) → 릴리즈(8 prerelease, 9 internal test, 10 release).
+The workflow is 10 stages grouped into 5 phases: Planning(1 brief, 2 spec) → UX(3 flow) → UI(4 wireframe, 5 wireframe review) → Development(6 prototype, 7 usability test) → Release(8 prerelease, 9 internal test, 10 release).
+
+**Everything the plugin ships is in English** (skills including their trigger phrases, `stage-rules.md`, templates, wfctl output, the panel, README). Only `CLAUDE.ko.md` is Korean. Keep it that way.
 
 ## Commands
 
@@ -22,7 +24,11 @@ node -e "JSON.parse(require('fs').readFileSync('plugins/vibe-workflow/.claude-pl
 
 # Drive wfctl by hand (from a scratch directory, never from this repo)
 W=<repo>/plugins/vibe-workflow/scripts/wfctl.js
-node $W init && node $W new spec && node $W screen home "홈" && node $W status && node $W sync
+node $W init && node $W new spec && node $W screen home "Home" && node $W status && node $W sync
+
+# Progress panel mod: validate, test, type-check (tsconfig from the header of the plugin-authoring types file)
+claude plugin validate plugins/vibe-workflow
+claude plugin test plugins/vibe-workflow
 
 # Local install test (load without installing)
 claude --plugin-dir "$(pwd)/plugins/vibe-workflow"
@@ -38,10 +44,17 @@ claude plugin list          # Confirm Status is enabled. Load failures also surf
 
 ## Architecture
 
-### No hooks
+### No blocking hooks — one read-only progress panel
 
-Since 0.2.0 the plugin ships **no hooks**. Blocking hooks made the plugin frustrating to use and were removed on purpose.
-Do not reintroduce a hook that blocks, asks, or injects context on every prompt. If a hook is ever proposed, it must be non-blocking, read-only, and print nothing outside a `.workflow/` project — and the user must ask for it.
+Since 0.2.0 the plugin ships **no command hooks**. Blocking hooks made the plugin frustrating to use and were removed on purpose.
+Do not reintroduce a hook that blocks, asks, or injects context on every prompt.
+
+The only module is the progress panel mod (`hooks/hooks.json` → `{ "modules": ["./register.tsx"] }`, added at the user's request in 0.3.0):
+- Its only data source is `wfctl status --json`. It never computes progress itself, so the panel, `wfctl status`, and the hub cannot disagree.
+- It draws a docked pane, a status line when not docked, and `/progress`. It injects nothing into prompts and denies nothing.
+- It does nothing in a project without `.workflow/config.json`.
+- Atom refs must use string literals (`{ plugin: 'vibe-workflow', key: ... }`) — the validator rejects a constant. Change an atom's `shape` tag when its value's fields change.
+- Do not put a `"hooks"` field in `plugin.json`; `hooks/hooks.json` is loaded automatically.
 
 ### Hub + wiki documents
 
@@ -66,9 +79,11 @@ Never cache a decision anywhere else. Keep the same principle when adding a stag
 
 ```
 scripts/lib/wf.js        STAGES table, marker parsing, progress, hub rendering — pure, answers from input
-scripts/wfctl.js         CLI: init / status / sync / new / screen / check / deploy / doctor — file writes live here
+scripts/wfctl.js         CLI: init / status [--json] / sync / new / screen / check / deploy / doctor — file writes live here
+hooks/register.tsx       progress panel mod (UI only), reads wfctl status --json
+types/index.d.ts         the mod's $.state contract
 reference/stage-rules.md shared rules every stage skill reads first
-skills/wf-*/SKILL.md     one skill per stage + wf-init + wf-next (router)
+skills/wf-*/SKILL.md     one skill per stage + wf-init + wf-next (router) + wf-progress (show only)
 templates/               hub, stage documents, wireframe HTML/CSS
 ```
 
@@ -76,13 +91,13 @@ Stage definitions live only in `STAGES` in `wf.js`. Skills, templates, and READM
 
 ### Document involvement level
 
-Documents guide direction; they never gate code. The rule set is in `reference/stage-rules.md` (`문서 관여 수준`):
+Documents guide direction; they never gate code. The rule set is in `reference/stage-rules.md` (`Doc involvement level`):
 small changes touch no docs, medium changes are implemented first and reflected in one line afterward, large changes ask once and proceed either way.
 Do not write skill text that makes the model refuse or delay a user request for the sake of document consistency.
 
 ### Readable documents
 
-Every stage document has a `한눈에` summary of at most 3 lines and a length budget (in `stage-rules.md`). Over budget → split into sub-pages.
+Every stage document has an `At a glance` summary of at most 3 lines and a length budget (in `stage-rules.md`). Over budget → split into sub-pages.
 Keep templates short. Adding a section to a template has a reading cost for every user.
 
 ### Time handling
@@ -109,6 +124,7 @@ Split when exceeded: 300 lines per file, 50 lines per function, 5 parameters, 10
 **Do not introduce a test framework.** Having no dependencies is a constraint of this plugin.
 Verify by driving `wfctl` by hand in a scratch directory: `init`, `new` for each changed template, `status`, `sync`, and the error paths (unknown stage, bad slug, empty deploy).
 After changing a template, confirm `{{...}}` placeholders are all substituted in the generated file.
+After changing the panel or the `status --json` shape, run `claude plugin validate` and `claude plugin test` (the mod's `*.test.tsx` is the one exception to "no test framework": it runs on Claude Code's own kit, no dependency), and type-check with `tsc`.
 
 ### Style
 
@@ -123,13 +139,13 @@ After changing a template, confirm `{{...}}` placeholders are all substituted in
 - Invoke `wfctl` as `node "${CLAUDE_PLUGIN_ROOT}/scripts/wfctl.js"`
 - Stage skills start by reading `${CLAUDE_PLUGIN_ROOT}/reference/stage-rules.md`. Put shared rules there, not copied into each skill
 - Never let a skill invent completion: marker `status` changes only after the user confirms via `AskUserQuestion`
-- Put **Korean phrasing that users would actually type** into the `description` in the frontmatter (the model selects skills by it)
+- Put **English phrasing that users would actually type** into the `description` in the frontmatter (the model selects skills by it)
 - Where human judgment is required, instruct `AskUserQuestion` explicitly. "Ask the user" on its own gets skipped
 - Keep skill bodies short — around 60 lines
 
 ## Limits of enforcement (keep this in the documentation)
 
-Nothing is enforced. There are no hooks; stage order, human checkpoints, and marker updates are conventions the skills instruct.
+Nothing is enforced. There are no blocking hooks (the progress panel only displays); stage order, human checkpoints, and marker updates are conventions the skills instruct.
 Human checkpoints (wireframe approval, usability results, internal-test triage, release decision) rely on the model following `AskUserQuestion` instructions.
 
 Do not delete this limitation from the README. Documenting something as enforced when it is not destroys trust in the entire system.

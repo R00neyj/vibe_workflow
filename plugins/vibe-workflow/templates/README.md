@@ -1,31 +1,31 @@
-# {{PROJECT}} — 전체 흐름
+# {{PROJECT}} — Overall flow
 
-시작일: {{DATE}}
+Started: {{DATE}}
 
-이 문서가 프로젝트의 허브임. 각 단계의 세부 문서는 아래 표의 링크로 이동함.
-`<!-- wf:index -->` 블록 안쪽은 `wfctl sync` 가 단계 문서의 마커를 읽어 다시 그림 — 직접 고치지 않음.
+This document is the project hub. Follow the links in the table below to each stage's detail document.
+The inside of the `<!-- wf:index -->` block is redrawn by `wfctl sync` from the stage documents' markers — do not edit it by hand.
 
-## 개요
+## Overview
 
-- 한 줄 정의:
-- 대상 사용자:
-- 현재 목표:
+- One-line definition:
+- Target users:
+- Current goal:
 
-## 진행 현황
+## Progress
 
 <!-- wf:index:begin -->
 <!-- wf:index:end -->
 
-## 결정 로그
+## Decision log
 
-단계를 마칠 때마다, 또는 방향을 바꿀 때마다 한 줄씩 추가함. 근거 문서를 링크함.
+Add one line each time a stage ends or the direction changes. Link the supporting document.
 
-| 날짜 | 단계 | 결정 | 근거 |
+| Date | Stage | Decision | Basis |
 | --- | --- | --- | --- |
-| {{DATE}} | - | 워크플로우 시작 | - |
+| {{DATE}} | - | Workflow started | - |
 
-## 열린 질문
+## Open questions
 
-답이 나오면 결정 로그로 옮기고 여기서 지움.
+Once answered, move to the decision log and delete here.
 
 -

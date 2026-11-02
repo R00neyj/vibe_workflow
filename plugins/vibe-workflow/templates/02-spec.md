@@ -1,47 +1,47 @@
-# {{PROJECT}} — 기능 명세
+# {{PROJECT}} — Feature spec
 
 {{NAV}}
 
-작성일: {{DATE}}
+Created: {{DATE}}
 
 <!-- wf:spec
 status: draft
 -->
 
-> 근거: [기획서](01-brief.md). 완료 조건: 모든 기능에 수용 기준이 있고 핵심 기능이 1개 이상 지정됨 → `status: done`
-> **핵심** 표시된 기능은 7단계 사용성 테스트의 과업이 됨.
+> Basis: [brief](01-brief.md). Done when: every feature has acceptance criteria and at least one feature is marked core → `status: done`
+> Features marked **Core** become the tasks of the stage 7 usability test.
 
-## 한눈에
+## At a glance
 
 - 
 
-## 기능 목록
+## Feature list
 
-| ID | 기능 | 핵심 | 우선순위 | 근거(기획서 절) |
+| ID | Feature | Core | Priority | Source (brief section) |
 | --- | --- | --- | --- | --- |
-| [F-01](#f-01) | | Y | Must | [기획서 5절](01-brief.md#5-완성본-목표) |
+| [F-01](#f-01) | | Y | Must | [Brief section 5](01-brief.md#5-target-outcome) |
 
-우선순위: Must(릴리즈 필수) / Should / Could / Won't(이번 제외)
+Priority: Must (required for release) / Should / Could / Won't (excluded this time)
 
-## 기능 상세
+## Feature details
 
 <a id="f-01"></a>
 
-### F-01 기능명
+### F-01 Feature name
 
-- 사용자: 누가
-- 목적: 이 기능으로 사용자가 달성하는 것
-- 입력:
-- 동작:
-- 출력/결과:
-- 예외: 빈 상태, 잘못된 입력, 실패 시
-- 수용 기준:
+- User: who
+- Purpose: what the user achieves with this feature
+- Input:
+- Behavior:
+- Output/result:
+- Exceptions: empty state, invalid input, failure
+- Acceptance criteria:
   - [ ]
 
-## 비기능 요구사항
+## Non-functional requirements
 
-| 항목 | 기준 |
+| Item | Criterion |
 | --- | --- |
-| 지원 환경 | |
-| 성능 | |
-| 접근성 | |
+| Supported environments | |
+| Performance | |
+| Accessibility | |

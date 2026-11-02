@@ -1,30 +1,30 @@
 ---
 name: wf-wireframe
-description: vibe-workflow 4단계(UI). 플로우차트의 화면 목록으로 저해상도 와이어프레임을 정적 HTML 로 만든다. 화면 간 링크로 플로우를 클릭해 볼 수 있다. "와이어프레임", "화면 설계", "레이아웃 잡아줘", "로우파이", "화면 초안" 요청에 사용한다.
+description: vibe-workflow stage 4 (UI). Build low-fi wireframes as static HTML from the flowchart's screen list. Screens link to each other so the flow can be clicked through. Use when the user says "wireframe", "design the screens", "lay out the screens", "low-fi", "first draft of the screens".
 ---
 
-# wf-wireframe — 4. 저해상도 와이어프레임 [UI]
+# wf-wireframe — 4. Low-fi wireframe [UI]
 
-시작 전 `${CLAUDE_PLUGIN_ROOT}/reference/stage-rules.md` 를 Read 하고 공통 절차를 따름. 단계 키: `wireframe`.
+Before starting, Read `${CLAUDE_PLUGIN_ROOT}/reference/stage-rules.md` and follow the common procedure. Stage key: `wireframe`.
 
-## 입력
+## Input
 
-- UX 플로우(`.workflow/03-flow.md`) — 화면 목록, 플로우
-- 기능 명세(`.workflow/02-spec.md`) — 각 화면이 담아야 할 입력·결과
+- UX flow (`.workflow/03-flow.md`) — screen list, flow
+- Feature spec (`.workflow/02-spec.md`) — inputs and results each screen must hold
 
-## 진행
+## Steps
 
-1. `WFCTL new wireframe` 로 `04-wireframe/index.html`, `wireframe.css` 생성.
-2. 화면 목록의 slug 마다 `WFCTL screen <slug> "<화면명>"`.
-3. 각 화면 작성 규칙:
-   - **저해상도만.** 회색 박스·점선·실제 문구 대신 역할 표기. 색·폰트·이미지·아이콘 금지. `wireframe.css` 클래스(`box`, `row`, `btn`, `input`)만 사용
-   - 플로우의 이동을 `<a href="다음.html">` 로 연결 — 클릭으로 플로우를 따라갈 수 있어야 함
-   - 관련 기능을 `../02-spec.md#f-xx` 로 링크
-   - 주석은 3줄 이하: 이 화면에서 사용자가 하는 일
-4. `index.html` 목록에 모든 화면을 링크.
-5. 브라우저로 여는 방법(파일 경로)을 알려줌. 가능하면 직접 열어 깨진 링크가 없는지 확인.
+1. `WFCTL new wireframe` creates `04-wireframe/index.html` and `wireframe.css`.
+2. For each slug in the screen list: `WFCTL screen <slug> "<screen name>"`.
+3. Rules for each screen:
+   - **Low-fi only.** Gray boxes, dashed lines, and role labels instead of real copy. No color, fonts, images, or icons. Use only `wireframe.css` classes (`box`, `row`, `btn`, `input`)
+   - Wire the flow's transitions with `<a href="next.html">` — the user must be able to follow the flow by clicking
+   - Link related features via `../02-spec.md#f-xx`
+   - Comments at most 3 lines: what the user does on this screen
+4. Link every screen from the `index.html` list.
+5. Tell the user how to open it in a browser (file path). If possible, open it yourself and check for broken links.
 
-## 완료
+## Done
 
-플로우의 모든 화면이 있고 링크가 이어지면 `status: done` → `WFCTL sync` → `/wf-wireframe-review`.
-이 단계는 사용자 승인 없이 완료 가능. 승인은 5단계에서 받음.
+When every screen in the flow exists and the links connect: `status: done` → `WFCTL sync` → `/wf-wireframe-review`.
+This stage can complete without user approval. Approval comes in stage 5.

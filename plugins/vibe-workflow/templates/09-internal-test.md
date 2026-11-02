@@ -1,35 +1,35 @@
-# {{PROJECT}} — 내부 테스트
+# {{PROJECT}} — Internal test
 
 {{NAV}}
 
-작성일: {{DATE}}
+Created: {{DATE}}
 
 <!-- wf:internal-test
 status: draft
 -->
 
-> 테스터 배포용 안내문은 [09-tester-guide.md](09-tester-guide.md). 완료 조건: `차단` 이슈 0건, 나머지 처리 방침 확정 → `status: done`
+> Tester handout: [09-tester-guide.md](09-tester-guide.md). Done when: 0 `blocker` issues and a handling decision for the rest → `status: done`
 
-## 한눈에
+## At a glance
 
 - 
 
-## 테스터
+## Testers
 
-| 테스터 | 환경(기기·브라우저) | 피드백 수신 |
+| Tester | Environment (device/browser) | Feedback received |
 | --- | --- | --- |
 | | | |
 
-## 피드백
+## Feedback
 
-| ID | 테스터 | 과업/화면 | 내용 | 분류 | 심각도 | 처리 |
+| ID | Tester | Task/screen | Content | Category | Severity | Action |
 | --- | --- | --- | --- | --- | --- | --- |
-| I-01 | | | | 버그/사용성/요청 | 차단/주요/경미 | 수정/보류/거절 |
+| I-01 | | | | bug/usability/request | blocker/major/minor | fix/defer/reject |
 
-심각도: 차단(핵심 과업 불가) / 주요(우회 가능하나 불편) / 경미
+Severity: blocker (core task impossible) / major (workaround exists but painful) / minor
 
-## 수정 후 재배포
+## Redeploy after fixes
 
-| 버전 | 반영 ID |
+| Version | IDs addressed |
 | --- | --- |
 | | |

@@ -1,29 +1,29 @@
-# {{PROJECT}} — 와이어프레임 검토
+# {{PROJECT}} — Wireframe review
 
 {{NAV}}
 
-작성일: {{DATE}}
+Created: {{DATE}}
 
 <!-- wf:wireframe-review
 status: draft
 reviewer:
 -->
 
-> 판정은 사용자만 함. 승인 시 `status: approved`, 수정 요청 시 `status: changes-requested`
+> Only the user decides. On approval `status: approved`, on change request `status: changes-requested`
 
-## 한눈에
+## At a glance
 
 - 
 
-## 검토 라운드
+## Review rounds
 
-### 라운드 1 — {{DATE}}
+### Round 1 — {{DATE}}
 
-| 화면 | 지적 | 조치 |
+| Screen | Comment | Action |
 | --- | --- | --- |
 | | | |
 
-## 최종 판정
+## Final decision
 
-- 판정:
-- 남은 메모(프로토타입에서 반영):
+- Decision:
+- Remaining notes (apply in the prototype):

@@ -1,39 +1,39 @@
-# {{PROJECT}} — 사용성 테스트
+# {{PROJECT}} — Usability test
 
 {{NAV}}
 
-작성일: {{DATE}}
+Created: {{DATE}}
 
 <!-- wf:usability
 status: draft
 -->
 
-> 완료 조건: 모든 핵심 과업이 최근 라운드에서 `성공` → `status: done`
+> Done when: every core task is `success` in the latest round → `status: done`
 
-## 한눈에
+## At a glance
 
 - 
 
-## 진행자 전용 — 라운드가 끝난 뒤에만 작성
+## Facilitator only — fill in after the round ends
 
-| 과업 | 근거 기능 | 성공 기준 | 예상 경로 |
+| Task | Source feature | Success criterion | Expected path |
 | --- | --- | --- | --- |
 | T1 | [F-01](02-spec.md#f-01) | | |
 
-## 사용자에게 제시할 과업 문구
+## Task prompts shown to the user
 
-목표만 적음. 메뉴명·버튼명·절차를 넣지 않음.
+State the goal only. Do not include menu names, button names, or steps.
 
 - T1:
 
-## 라운드 1 — {{DATE}}
+## Round 1 — {{DATE}}
 
-| 과업 | 결과 | 난이도(1 매우 어려움~4 매우 쉬움) | 막힌 지점(사용자 말 그대로) | 관찰 |
+| Task | Result | Difficulty (1 very hard – 4 very easy) | Where they got stuck (user's own words) | Observations |
 | --- | --- | --- | --- | --- |
-| T1 | 성공 / 도움받아 성공 / 실패 | | | |
+| T1 | success / success with help / fail | | | |
 
-### 발견된 문제와 수정
+### Issues and fixes
 
-| ID | 과업 | 문제 | 심각도 | 수정 내용 | 수정 파일 |
+| ID | Task | Issue | Severity | Fix | Fixed file |
 | --- | --- | --- | --- | --- | --- |
-| U-01 | T1 | | 높음/중간/낮음 | | |
+| U-01 | T1 | | high/medium/low | | |

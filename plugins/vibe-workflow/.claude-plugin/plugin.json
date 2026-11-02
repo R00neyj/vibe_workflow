@@ -1,11 +1,13 @@
 {
   "name": "vibe-workflow",
-  "version": "0.2.0",
-  "description": "기획 → UX → UI → 개발 → 릴리즈 10단계 바이브코딩 워크플로우. 허브 문서 하나와 단계별 위키 문서를 스킬로 만들며 개발한다. 훅 없음.",
+  "version": "0.3.0",
+  "description": "A 10-stage vibe-coding workflow: Planning → UX → UI → Development → Release. Builds one hub doc plus a wiki page per stage through skills. No blocking hooks, only a read-only progress panel.",
   "author": {
     "name": "R00neyj",
     "email": "yjw1555@gmail.com",
     "url": "https://github.com/R00neyj"
   },
-  "homepage": "https://github.com/R00neyj/vibe_workflow"
+  "homepage": "https://github.com/R00neyj/vibe_workflow",
+  "types": "./types/index.d.ts",
+  "license": "MIT"
 }

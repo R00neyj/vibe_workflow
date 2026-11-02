@@ -1,8 +1,8 @@
-# {{PROJECT}} — 프리릴리즈
+# {{PROJECT}} — Pre-release
 
 {{NAV}}
 
-작성일: {{DATE}}
+Created: {{DATE}}
 
 <!-- wf:prerelease
 status: draft
@@ -10,30 +10,30 @@ version:
 url:
 -->
 
-> 완료 조건: 배포가 실제로 접속 가능함을 확인 → `status: deployed`, version·url 기입
+> Done when: the deployment is confirmed reachable → `status: deployed`, fill in version and url
 
-## 한눈에
+## At a glance
 
 - 
 
-## 배포 전 점검
+## Pre-deploy checks
 
-- [ ] `wfctl check` 전부 pass
-- [ ] 사용성 테스트 수정 사항 반영
-- [ ] 테스트용 데이터·계정 준비
-- [ ] 환경변수·비밀값이 저장소에 없음
+- [ ] All `wfctl check` items pass
+- [ ] Usability test fixes applied
+- [ ] Test data and accounts ready
+- [ ] No environment variables or secrets in the repository
 
-## 배포 기록
+## Deploy record
 
-| 항목 | 값 |
+| Item | Value |
 | --- | --- |
-| 버전 | |
-| 일시 | |
-| 대상 | |
+| Version | |
+| Date/time | |
+| Target | |
 | URL | |
-| 방법 | `wfctl deploy prerelease` / 수동 |
+| Method | `wfctl deploy prerelease` / manual |
 
-## 배포 후 확인
+## Post-deploy checks
 
-- [ ] URL 접속
-- [ ] 핵심 과업 1회 직접 수행
+- [ ] URL reachable
+- [ ] Performed one core task myself

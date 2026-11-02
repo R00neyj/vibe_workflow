@@ -1,66 +1,66 @@
-# {{PROJECT}} — 기획서
+# {{PROJECT}} — Brief
 
 {{NAV}}
 
-작성일: {{DATE}}
+Created: {{DATE}}
 
 <!-- wf:brief
 status: draft
 -->
 
-> 완료 조건: 모든 절이 채워지고 사용자가 확인함 → `status: done`
+> Done when: every section is filled in and the user has confirmed → `status: done`
 
-## 한눈에
+## At a glance
 
 - 
 
-## 1. 한 줄 정의
+## 1. One-line definition
 
-무엇을, 누구에게, 왜.
+What, for whom, why.
 
-## 2. 문제
+## 2. Problem
 
-- 지금 무엇이 불편한가:
-- 지금은 어떻게 해결하고 있는가:
+- What is painful today:
+- How it is solved today:
 
-## 3. 대상 사용자
+## 3. Target users
 
-| 사용자 유형 | 상황 | 원하는 것 |
+| User type | Situation | What they want |
 | --- | --- | --- |
 | | | |
 
-## 4. 레퍼런스 조사
+## 4. Reference research
 
-| 대상 | 잘하는 점 | 아쉬운 점 | 가져올 것 |
+| Subject | Strengths | Weaknesses | What to borrow |
 | --- | --- | --- | --- |
 | | | | |
 
-## 5. 완성본 목표
+## 5. Target outcome
 
-릴리즈 시점에 사용자가 할 수 있어야 하는 것.
-
--
-
-## 6. 성공 기준
-
-관찰 가능한 서술로. "편하다" 금지.
+What the user must be able to do at release.
 
 -
 
-## 7. 범위 제외
+## 6. Success criteria
 
-이번에 만들지 않을 것.
-
--
-
-## 8. 제약
-
-실행 환경, 기술 스택, 배포 대상, 일정, 데이터.
+Write them as observable statements. No "it's convenient".
 
 -
 
-## 9. 가정
+## 7. Out of scope
 
-답을 못 받아 가정으로 둔 것. 나중에 확인 필요.
+What will not be built this time.
+
+-
+
+## 8. Constraints
+
+Runtime environment, tech stack, deploy target, schedule, data.
+
+-
+
+## 9. Assumptions
+
+Things assumed because no answer was received. Need confirmation later.
 
 -

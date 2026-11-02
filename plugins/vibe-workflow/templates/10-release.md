@@ -1,8 +1,8 @@
-# {{PROJECT}} — 릴리즈
+# {{PROJECT}} — Release
 
 {{NAV}}
 
-작성일: {{DATE}}
+Created: {{DATE}}
 
 <!-- wf:release
 status: draft
@@ -10,37 +10,37 @@ version:
 url:
 -->
 
-> 릴리즈 실행 여부는 사용자가 결정. 완료 조건: 배포 확인 → `status: released`
+> The user decides whether to run the release. Done when: deployment confirmed → `status: released`
 
-## 한눈에
+## At a glance
 
 - 
 
-## 릴리즈 판정 근거
+## Release decision basis
 
-- [ ] 기획서 성공 기준 충족
-- [ ] Must 기능 전부 구현
-- [ ] 사용성 테스트 핵심 과업 전부 성공
-- [ ] 내부 테스트 차단 이슈 0건
-- [ ] `wfctl check` 전부 pass
+- [ ] Brief success criteria met
+- [ ] All Must features implemented
+- [ ] All core usability test tasks succeeded
+- [ ] 0 blocker issues in the internal test
+- [ ] All `wfctl check` items pass
 
-## 보류한 이슈
+## Deferred issues
 
-| ID | 내용 | 보류 이유 |
+| ID | Content | Reason for deferral |
 | --- | --- | --- |
 | | | |
 
-## 릴리즈 노트
+## Release notes
 
-### 버전
+### Version
 
 -
 
-## 배포 기록
+## Deploy record
 
-| 항목 | 값 |
+| Item | Value |
 | --- | --- |
-| 버전 | |
-| 일시 | |
+| Version | |
+| Date/time | |
 | URL | |
-| 롤백 방법 | |
+| Rollback method | |

@@ -1,31 +1,31 @@
 ---
 name: wf-next
-description: vibe-workflow 의 현재 진행 상황을 보여주고 다음 단계 스킬로 이어간다. 기능 추가 사이클 재진입과 문서 따라잡기도 여기서 한다. "다음 단계", "다음 뭐 해", "어디까지 했지", "진행 상황", "상태 확인", "이어서 하자", "문서 정리해줘" 요청에 사용한다.
+description: Continue to the next vibe-workflow stage skill. Also handles re-entering a feature-add cycle and doc catch-up. For status only, use wf-progress. Use when the user says "next step", "what's next", "let's continue", "keep going", "clean up the docs", "let's add a feature".
 ---
 
-# wf-next — 진행 확인·라우터
+# wf-next — Progress check and router
 
 `WFCTL` = `node "${CLAUDE_PLUGIN_ROOT}/scripts/wfctl.js"`
 
-## 절차
+## Procedure
 
-1. `WFCTL sync` 후 `WFCTL status`. `.workflow` 가 없으면 `/wf-init` 안내.
-2. 사용자에게 보여줄 것: 현재 큰 단계(기획/UX/UI/개발/릴리즈), 다음 단계 번호·이름, 허브 열린 질문 개수. 표 전체를 붙여넣지 않음 — 허브 링크로 대신함.
-3. 다음 단계 스킬을 바로 이어서 실행함. 사용자가 다른 단계를 지목하면 그 단계로 감.
+1. `WFCTL sync`, then `WFCTL status`. If `.workflow` is missing, point to `/wf-init`.
+2. Show the user: current phase (Planning/UX/UI/Development/Release), next stage number and name, number of hub Open questions. Do not paste the whole table; link the hub instead.
+3. Run the next stage skill right away. If the user names a different stage, go there.
 
-## 전 단계 완료 후 — 기능 추가 사이클
+## After all stages are done — feature-add cycle
 
-릴리즈 이후 새 기능 요청이면:
+For a new feature request after release:
 
-1. `AskUserQuestion`: "기능 명세부터(2단계) / 바로 구현(6단계)". 규모가 작으면 바로 구현을 추천.
-2. 명세부터면 `/wf-spec` 에서 새 F-ID 만 추가함. 이후 단계는 **추가분만** 다룸(새 화면만 와이어프레임, 새 과업만 사용성 테스트).
-3. 재진입하는 단계 문서의 status 를 `draft` 로 되돌리고 결정 로그에 "기능 추가 사이클: F-xx" 를 남김.
+1. `AskUserQuestion`: "Feature spec first (stage 2) / Implement now (stage 6)". Recommend implementing now when the change is small.
+2. If spec first, add only the new F-IDs in `/wf-spec`. Later stages cover **only the additions** (wireframe only new screens, usability-test only new tasks).
+3. Revert the status of each re-entered stage document to `draft` and log "Feature-add cycle: F-xx" in the Decision log.
 
-## 문서 따라잡기
+## Doc catch-up
 
-"문서 정리해줘" 또는 단계 전환(7→8, 9→10) 시:
+On "clean up the docs" or at a stage transition (7→8, 9→10):
 
-1. `git log`/`git diff` 로 마지막 정리 이후 코드 변경을 훑음.
-2. 문서에 없는 기능·화면, 문서와 다르게 구현된 것을 목록으로 만듦.
-3. 각 항목을 해당 문서에 **한 줄씩** 반영하고, 판단이 필요한 것만 `AskUserQuestion` 으로 물음(최대 4개씩).
-4. 허브 열린 질문 중 해결된 것을 결정 로그로 옮기고 `WFCTL sync`.
+1. Scan code changes since the last catch-up with `git log`/`git diff`.
+2. List features/screens missing from the docs and anything implemented differently from the docs.
+3. Reflect each item in its document as **one line**, and ask via `AskUserQuestion` only what needs judgment (at most 4 at a time).
+4. Move resolved hub Open questions into the Decision log and run `WFCTL sync`.

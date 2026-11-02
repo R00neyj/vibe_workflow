@@ -1,78 +1,107 @@
 # vibe-workflow
 
-바이브코딩을 **기획 → UX → UI → 개발 → 릴리즈** 10단계로 진행하게 돕는 Claude Code 플러그인.
-허브 문서 하나와 단계별 위키 문서를 만들면서 개발함. 훅 없음 — 전부 스킬.
+A Claude Code plugin that guides vibe coding through 10 stages: **Planning → UX → UI → Development → Release**.
+You build with one hub document and a wiki of per-stage documents. No blocking hooks — everything is a skill. A read-only progress panel appears on the right side of the screen.
 
-## 흐름
+## Flow
 
-| 큰 단계 | # | 단계 | 산출물 (`.workflow/`) | 스킬 |
+| Phase | # | Stage | Artifact (`.workflow/`) | Skill |
 | --- | --- | --- | --- | --- |
-| 기획 | 1 | 사전조사·기획서 | `01-brief.md` | `/wf-brief` |
-| 기획 | 2 | 기능 명세 | `02-spec.md` | `/wf-spec` |
-| UX | 3 | UX 플로우차트 | `03-flow.md` (mermaid) | `/wf-flow` |
-| UI | 4 | 저해상도 와이어프레임 | `04-wireframe/*.html` | `/wf-wireframe` |
-| UI | 5 | 와이어프레임 검토 (사용자 승인) | `05-wireframe-review.md` | `/wf-wireframe-review` |
-| 개발 | 6 | 프로토타입 제작 | 소스 코드 + `06-prototype.md` | `/wf-prototype` |
-| 개발 | 7 | 사용성 테스트 (목표만 제시 → 막힌 곳 조사 → 수정) | `07-usability.md` | `/wf-usability` |
-| 릴리즈 | 8 | 프리릴리즈 배포 | `08-prerelease.md` | `/wf-prerelease` |
-| 릴리즈 | 9 | 내부 테스트 | `09-internal-test.md`, `09-tester-guide.md` | `/wf-internal-test` |
-| 릴리즈 | 10 | 릴리즈 | `10-release.md` | `/wf-release` |
+| Planning | 1 | Research & brief | `01-brief.md` | `/wf-brief` |
+| Planning | 2 | Feature spec | `02-spec.md` | `/wf-spec` |
+| UX | 3 | UX flowchart | `03-flow.md` (mermaid) | `/wf-flow` |
+| UI | 4 | Low-fi wireframe | `04-wireframe/*.html` | `/wf-wireframe` |
+| UI | 5 | Wireframe review (user approval) | `05-wireframe-review.md` | `/wf-wireframe-review` |
+| Development | 6 | Prototype | source code + `06-prototype.md` | `/wf-prototype` |
+| Development | 7 | Usability test (give only the goal → investigate where users get stuck → fix) | `07-usability.md` | `/wf-usability` |
+| Release | 8 | Pre-release | `08-prerelease.md` | `/wf-prerelease` |
+| Release | 9 | Internal test | `09-internal-test.md`, `09-tester-guide.md` | `/wf-internal-test` |
+| Release | 10 | Release | `10-release.md` | `/wf-release` |
 
-단계 이름을 외울 필요 없음. **"다음 단계"** 라고 말하면 `/wf-next` 가 현재 위치를 보고 이어감.
+No need to memorize stage names. Say **"next step"** and `/wf-next` looks at where you are and continues.
 
 ```
-/wf-init    설치 — .workflow/ 와 허브 생성
-/wf-next    진행 확인 → 다음 단계 실행. 기능 추가 사이클, 문서 따라잡기도 여기서
+/wf-init      Install — create .workflow/ and the hub
+/wf-next      Run the next stage. Feature-add cycles and doc catch-up also go here
+/wf-progress  View progress only (runs nothing)
+/progress     Open the progress panel
 ```
 
-## 문서 구조 — 허브 + 위키
+## Progress panel
+
+Opening a session in a project with `.workflow/` shows the progress panel. Its only data source is `wfctl status --json` (read-only).
+
+```
+vibe-workflow · 4/10
+[-] ✓ Planning    ██████ 2/2
+        ✓ 1. Research & brief
+        ✓ 2. Feature spec
+[+] ✓ UX          ██████ 1/1
+[-] ▶ UI          ███░░░ 1/2
+        ✓ 4. Low-fi wireframe
+        ▶ 5. Wireframe review
+[+] · Development ░░░░░░ 0/2
+[+] · Release     ░░░░░░ 0/3
+
+Prev 4. Low-fi wireframe
+Now  5. Wireframe review → /wf-wireframe-review
+Next 6. Prototype
+```
+
+- Wide window (about 110+ columns): docks on the right. `[+]`/`[-]` expands a phase (the current phase is expanded by default).
+- Narrow window: a single status line below the prompt — `vibe-workflow 4/10 ▶ [UI] 5. Wireframe review → /wf-wireframe-review · Next 6. Prototype`
+- `/progress`: opens the panel and prints the full stage list as text.
+- Refresh: 1.5 seconds after a Bash, Edit, Write, Skill, or Agent call, plus every 30 seconds.
+- Injects nothing into prompts or tool calls and blocks nothing. Does nothing in projects without `.workflow/`.
+
+## Document structure — hub + wiki
 
 ```
 .workflow/
-├── README.md          허브: 개요 · 진행 표 · 결정 로그 · 열린 질문
-├── 01-brief.md        각 문서 상단에 ← 전체 흐름 · 이전 · 다음 네비
-├── 02-spec.md         기능은 F-01 앵커, 다른 문서는 [F-01](02-spec.md#f-01) 로 링크
+├── README.md          Hub: overview · progress table · decision log · open questions
+├── 01-brief.md        Each doc has a ← Overall flow · Prev · Next nav at the top
+├── 02-spec.md         Features are F-01 anchors; other docs link like [F-01](02-spec.md#f-01)
 ├── ...
-└── config.json        체크·실행·배포 명령
+└── config.json        Check, run, and deploy commands
 ```
 
-- 허브 하나만 열면 전체 흐름과 현재 위치가 보임.
-- 허브의 진행 표는 각 문서 마커(`<!-- wf:spec status: done -->`)에서 `wfctl sync` 가 다시 그림. 완료 여부를 따로 저장하지 않으므로 문서와 상태가 어긋나지 않음.
-- 문서는 짧게: 문서마다 `한눈에` 3줄 요약, 표 위주, 길이 예산을 넘으면 하위 페이지로 분리.
+- Opening just the hub shows the whole flow and the current position.
+- The hub's progress table is redrawn by `wfctl sync` from each doc's marker (`<!-- wf:spec status: done -->`). Completion is not stored separately, so docs and state cannot drift apart.
+- Keep docs short: a 3-line `At a glance` summary per doc, mostly tables, and split into subpages when over the length budget.
 
-## 문서와 코드의 관계
+## How docs relate to code
 
-문서는 방향을 맞추는 도구이지 허가증이 아님. 변경 규모에 따라 관여 수준이 다름.
+Docs are a tool for keeping direction aligned, not a permit. The level of involvement depends on the size of the change.
 
-| 변경 규모 | 예 | 관여 |
+| Change size | Example | Doc involvement |
 | --- | --- | --- |
-| 작음 | 문구, 스타일, 버그 | 문서 건드리지 않음 |
-| 중간 | 기능·화면 추가 | 바로 구현, 끝난 뒤 문서에 한 줄 반영 |
-| 큼 | 핵심 기능·대상 사용자·목표 변경 | 구현 전 한 번만 물음. 어느 답이든 진행 |
+| small | copy, styling, bug | Docs untouched |
+| medium | adding a feature or screen | Implement right away, then add one line to the docs afterward |
+| large | changing a core feature, target users, or goals | Asked once before implementing. Proceeds with either answer |
 
-문서 정리는 단계 전환(7→8, 9→10) 때 `/wf-next` 의 "문서 따라잡기"로 몰아서 함.
-세부 규약: [`plugins/vibe-workflow/reference/stage-rules.md`](plugins/vibe-workflow/reference/stage-rules.md)
+Doc cleanup is batched into "doc catch-up" in `/wf-next` at stage transitions (7→8, 9→10).
+Detailed rules: [`plugins/vibe-workflow/reference/stage-rules.md`](plugins/vibe-workflow/reference/stage-rules.md)
 
-## 강제되지 않는 것
+## What is not enforced
 
-v0.2.0 부터 훅이 없음. **아무것도 기계적으로 강제되지 않음.**
+There are no blocking or injecting hooks (the progress panel only displays). **Nothing is mechanically enforced.**
 
-- 단계 순서는 규약임. 선행 단계가 미완료면 스킬이 묻지만 막지 않음.
-- 사람 판단 지점(와이어프레임 승인, 사용성 테스트 결과, 내부 테스트 처리 방침, 릴리즈 결정)은 스킬이 `AskUserQuestion` 으로 묻도록 지시함. 모델이 이를 건너뛰는 것을 막는 장치는 없음.
-- 문서 마커의 `status` 는 모델이 씀. 사용자 확인 후에만 바꾸도록 규약에 적혀 있을 뿐임.
-- `wfctl check` 는 실제 종료 코드로 판정하지만, 그 결과를 문서에 옮기는 것은 모델임.
+- Stage order is a convention. If a prior stage is incomplete the skill asks, but does not block.
+- At points needing human judgment (wireframe approval, usability test results, internal test handling policy, release decision), the skill is instructed to ask via `AskUserQuestion`. Nothing prevents the model from skipping it.
+- The `status` in a doc marker is written by the model. The convention only says to change it after user confirmation.
+- `wfctl check` judges by the real exit code, but it is the model that copies the result into the doc.
 
-## 설치
+## Install
 
-**요구사항**: Node.js (내장 모듈만 사용)
+**Requirements**: Node.js (built-in modules only)
 
 ```bash
-claude plugin marketplace add R00neyj/vibe_workflow   # 또는 저장소 루트에서 ./
+claude plugin marketplace add R00neyj/vibe_workflow   # or ./ from the repository root
 claude plugin install vibe-workflow@vibe-workflow
-claude plugin list                                   # Status: enabled 확인
+claude plugin list                                   # Confirm Status: enabled
 ```
 
-팀 배포는 소비 프로젝트의 `.claude/settings.json` 에 커밋:
+For team distribution, commit this to the consuming project's `.claude/settings.json`:
 
 ```json
 {
@@ -85,29 +114,29 @@ claude plugin list                                   # Status: enabled 확인
 }
 ```
 
-플러그인 개발 중에는 설치 없이 `claude --plugin-dir "$(pwd)/plugins/vibe-workflow"`.
+While developing the plugin, skip installing and use `claude --plugin-dir "$(pwd)/plugins/vibe-workflow"`.
 
-### 0.1.x 에서 올라올 때
+### Upgrading from 0.1.x
 
-호환되지 않음. 0.1.x 의 `.workflow/`(state.json, tasks/)는 읽지 않음. 새로 `wfctl init` 후 필요한 내용을 새 문서로 옮김.
+Not compatible. The 0.1.x `.workflow/` (state.json, tasks/) is not read. Run `wfctl init` fresh and move what you need into the new docs.
 
 ## wfctl
 
-스킬이 쓰는 CLI. 사람이 직접 써도 됨.
+The CLI the skills use. Humans can use it directly too.
 
 ```bash
-WF="node <플러그인>/scripts/wfctl.js"
-$WF init                     # .workflow/config.json + 허브 생성 (체크·실행 명령 자동 감지)
-$WF status                   # 10단계 진행 상황과 다음 단계
-$WF sync                     # 허브 진행 표 재생성
-$WF new spec                 # 단계 문서 생성 (키 또는 번호: new 2)
-$WF screen home "홈"         # 와이어프레임 화면 파일 생성
-$WF check                    # config 의 체크 실행
-$WF deploy prerelease        # config 의 배포 명령 실행
+WF="node <plugin>/scripts/wfctl.js"
+$WF init                     # create .workflow/config.json + hub (auto-detects check/run commands)
+$WF status [--json]          # progress across the 10 stages and the next stage (--json: for the panel)
+$WF sync                     # regenerate the hub progress table
+$WF new spec                 # create a stage doc (by key or number: new 2)
+$WF screen home "Home"       # create a wireframe screen file
+$WF check                    # run the checks from config
+$WF deploy prerelease        # run the deploy command from config
 $WF doctor
 ```
 
-## 설정
+## Config
 
 `.workflow/config.json`:
 
@@ -124,21 +153,23 @@ $WF doctor
 }
 ```
 
-`deploy` 가 비어 있으면 스킬이 수동 배포를 안내하고 결과만 기록함.
+If `deploy` is empty, the skill guides a manual deploy and only records the result.
 
-## 레이아웃
+## Layout
 
 ```
 .claude-plugin/marketplace.json
 plugins/vibe-workflow/
 ├── .claude-plugin/plugin.json
-├── reference/stage-rules.md    단계 스킬 공통 규약 (문서 구조·길이·관여 수준·링크)
+├── reference/stage-rules.md    Rules shared by stage skills (doc structure, length, involvement level, links)
+├── hooks/register.tsx          Progress panel mod (read-only UI)
+├── types/index.d.ts            Panel state type contract
 ├── scripts/wfctl.js            CLI
-├── scripts/lib/wf.js           단계 정의·마커 파싱·진행 판정·허브 렌더링
-├── skills/wf-*/SKILL.md        12개 스킬
-└── templates/                  허브 + 단계 문서 + 와이어프레임 HTML
+├── scripts/lib/wf.js           Stage definitions, marker parsing, progress judgment, hub rendering
+├── skills/wf-*/SKILL.md        13 skills
+└── templates/                  Hub + stage docs + wireframe HTML
 ```
 
-## 라이선스
+## License
 
 MIT

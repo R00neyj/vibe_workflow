@@ -1,29 +1,29 @@
 ---
 name: wf-brief
-description: vibe-workflow 1단계(기획). 사전조사로 완성본의 목표와 기획서를 설계한다. 문제·대상 사용자·레퍼런스·성공 기준·범위 제외를 문답으로 확정해 01-brief.md 에 쓴다. "기획서 만들자", "사전조사", "뭘 만들지 정리", "아이디어 정리", "기획부터" 요청에 사용한다.
+description: vibe-workflow stage 1 (Planning). Design the final product's goal and the brief through pre-research. Settle problem, target users, references, success criteria, and out-of-scope via Q&A and write them to 01-brief.md. Use when the user says "let's write the brief", "do pre-research", "figure out what to build", "organize my idea", "start with planning".
 ---
 
-# wf-brief — 1. 사전조사·기획서 [기획]
+# wf-brief — 1. Research & brief [Planning]
 
-시작 전 `${CLAUDE_PLUGIN_ROOT}/reference/stage-rules.md` 를 Read 하고 공통 절차를 따름. 단계 키: `brief`.
+Before starting, Read `${CLAUDE_PLUGIN_ROOT}/reference/stage-rules.md` and follow the common procedure. Stage key: `brief`.
 
-## 입력
+## Input
 
-- 사용자의 아이디어(대화), 기존 코드가 있으면 그 코드
+- The user's idea (conversation); existing code, if any
 
-## 진행
+## Steps
 
-1. **문답** — `AskUserQuestion` 으로 아래를 받음. 한 라운드 최대 4문항.
-   - 문제: 지금 무엇이 불편한가, 지금은 어떻게 해결하는가
-   - 대상 사용자: 누가, 어떤 상황에서
-   - 완성본 목표: 릴리즈 때 사용자가 할 수 있어야 하는 것
-   - 범위 제외: 이번에 만들지 않을 것 — 비면 범위가 샘. 반드시 받음
-   - 제약: 플랫폼, 기술 스택 선호, 배포 대상, 일정
-2. **레퍼런스 조사** — 비슷한 서비스 2~4개를 웹 검색으로 조사해 표에 한 줄씩. 사용자가 아는 레퍼런스가 있으면 먼저 받음. 검색 도구가 없으면 사용자에게 받음.
-3. **성공 기준** — 관찰 가능한 서술로 3~5개 제안하고 사용자가 고르게 함.
-4. **작성** — `01-brief.md`. 약 80줄 이내. "적당히"로 답이 오면 선택지를 만들어 다시 묻고, 그래도 안 정해지면 `가정` 절에 남김.
-5. 허브 `개요` 절(한 줄 정의·대상 사용자·현재 목표)도 채움.
+1. **Q&A** — collect the following with `AskUserQuestion`. At most 4 questions per round.
+   - Problem: what is painful now, how is it solved today
+   - Target users: who, in what situation
+   - Target outcome: what the user must be able to do at release
+   - Out of scope: what will not be built this time. Scope leaks if empty. Always collect
+   - Constraints: platform, tech stack preference, deploy target, schedule
+2. **Reference research** — web-search 2-4 similar services and add one table line each. Collect the user's known references first. If no search tool is available, ask the user.
+3. **Success criteria** — propose 3-5 observable statements and let the user choose.
+4. **Write** — `01-brief.md`, within about 80 lines. If the answer is "whatever", build options and ask again; if still undecided, record it in the `Assumptions` section.
+5. Also fill the hub `Overview` section (one-line definition, target users, current goal).
 
-## 완료
+## Done
 
-사용자 확인 후 `status: done` → 결정 로그 → `WFCTL sync` → `/wf-spec`.
+After user confirmation: `status: done` → Decision log → `WFCTL sync` → `/wf-spec`.

@@ -1,95 +1,95 @@
-# 단계 스킬 공통 규약
+# Common stage rules
 
-모든 `wf-*` 단계 스킬은 시작 전에 이 문서를 따름.
+Every `wf-*` stage skill follows this document before starting.
 
 `WFCTL` = `node "${CLAUDE_PLUGIN_ROOT}/scripts/wfctl.js"`
 
-## 문서 구조 — 허브 + 위키
+## Document structure — hub + wiki
 
 ```
 .workflow/
-├── README.md               허브. 전체 흐름·진행 표·결정 로그·열린 질문
-├── 01-brief.md             1. 사전조사·기획서        [기획]
-├── 02-spec.md              2. 기능 명세              [기획]
-├── 03-flow.md              3. UX 플로우차트          [UX]
-├── 04-wireframe/           4. 저해상도 와이어프레임   [UI]
-├── 05-wireframe-review.md  5. 와이어프레임 검토       [UI]
-├── 06-prototype.md         6. 프로토타입 제작         [개발]
-├── 07-usability.md         7. 사용성 테스트           [개발]
-├── 08-prerelease.md        8. 프리릴리즈 배포         [릴리즈]
-├── 09-internal-test.md     9. 내부 테스트             [릴리즈]
-├── 09-tester-guide.md         테스터 배포용 안내문
-└── 10-release.md           10. 릴리즈                 [릴리즈]
+├── README.md               hub. Overall flow, progress table, decision log, open questions
+├── 01-brief.md             1. Research & brief        [Planning]
+├── 02-spec.md              2. Feature spec            [Planning]
+├── 03-flow.md              3. UX flowchart            [UX]
+├── 04-wireframe/           4. Low-fi wireframe        [UI]
+├── 05-wireframe-review.md  5. Wireframe review        [UI]
+├── 06-prototype.md         6. Prototype               [Development]
+├── 07-usability.md         7. Usability test          [Development]
+├── 08-prerelease.md        8. Pre-release             [Release]
+├── 09-internal-test.md     9. Internal test           [Release]
+├── 09-tester-guide.md         Guide handed to testers
+└── 10-release.md           10. Release                [Release]
 ```
 
-- 허브(`README.md`)가 유일한 입구. 사용자는 허브만 열면 어디까지 왔는지 앎.
-- 허브의 `<!-- wf:index:begin -->` ~ `<!-- wf:index:end -->` 사이는 **직접 쓰지 않음.** `WFCTL sync` 가 다시 그림.
-- 허브의 개요·결정 로그·열린 질문 절은 스킬이 직접 갱신함.
+- The hub (`README.md`) is the only entry point. Opening it tells the user how far along things are.
+- **Never write by hand** between `<!-- wf:index:begin -->` and `<!-- wf:index:end -->` in the hub. `WFCTL sync` redraws it.
+- Skills update the hub's Overview, Decision log, and Open questions sections directly.
 
-## 읽기 쉬운 문서
+## Readable documents
 
-사용자가 1~2분 안에 읽을 수 있어야 함. 길면 안 읽히고, 안 읽힌 문서는 없는 것과 같음.
+The user must be able to read a document in 1-2 minutes. A long document goes unread, and an unread document might as well not exist.
 
-- 템플릿의 `> 완료 조건` 줄 바로 아래에 **`한눈에` 3줄 이하** 요약을 둠. 바쁜 사용자는 이것만 읽음.
-- 문장보다 표·목록. 한 항목은 한 줄. 배경 설명·일반론·반복 금지.
-- 템플릿에 있는 절이라도 해당 사항이 없으면 `해당 없음` 한 줄로 끝내거나 절을 지움.
-- 길이 예산(본문 기준, 넘으면 쪼갬):
+- Right below the `> Done when` line in the template, put an **`At a glance` summary of at most 3 lines** (section `## At a glance`). Busy users read only this.
+- Tables and lists over prose. One item per line. No background, generalities, or repetition.
+- If a template section does not apply, end it with a one-line `N/A` or delete the section.
+- Length budget (body only; split when exceeded):
 
-| 문서 | 예산 |
+| Document | Budget |
 | --- | --- |
-| 허브 README.md | 한 화면(약 60줄). 결정 로그가 30줄을 넘으면 오래된 줄을 `decisions.md` 로 옮기고 링크 |
-| 기획서 | 약 80줄 |
-| 기능 명세 | 기능 하나당 10줄 이하. 기능이 8개를 넘으면 상세를 `02-spec/F-xx.md` 하위 페이지로 분리하고 목록 표에서 링크 |
-| 플로우 | mermaid 노드 20개 이하. 넘으면 과업별 하위 플로우로 분리 |
-| 그 외 | 약 60줄 |
+| Hub README.md | One screen (about 60 lines). If the Decision log passes 30 lines, move older lines to `decisions.md` and link it |
+| Brief | About 80 lines |
+| Feature spec | At most 10 lines per feature. Beyond 8 features, split details into `02-spec/F-xx.md` subpages and link them from the list table |
+| Flow | At most 20 mermaid nodes. Beyond that, split into per-task subflows |
+| Others | About 60 lines |
 
-- 하위 페이지도 상단에 `[← 상위 문서](../02-spec.md)` 네비를 둠.
+- Subpages also carry a `[← Parent document](../02-spec.md)` nav line at the top.
 
-## 문서 관여 수준 — 문서가 코드를 막지 않음
+## Doc involvement level — docs never block code
 
-바이브코딩의 속도가 우선. 문서는 **방향을 맞추는 도구**이지 허가증이 아님.
-사용자가 무언가를 원하면 일단 해 주고, 문서는 뒤따라 맞춤.
+Vibe-coding speed comes first. Documents are a **tool for aligning direction**, not a permit.
+When the user wants something, do it first and catch the docs up afterward.
 
-| 변경 규모 | 예 | 관여 |
+| Change size | Examples | Involvement |
 | --- | --- | --- |
-| 작음 | 문구, 스타일, 버그 수정, 리팩터링 | 문서 건드리지 않음. 바로 처리 |
-| 중간 | 기능 추가·변경, 화면 추가 | 바로 구현. 끝난 뒤 해당 문서에 **한 줄** 반영(명세 표 행 추가, 화면 목록 추가) + 결정 로그 1줄. 묻지 않음 |
-| 큼 | 핵심 기능·핵심 과업 변경, 대상 사용자·목표 변경, 범위 제외 항목 구현 | 구현 전에 `AskUserQuestion` **1회**: "기획 반영 후 진행 / 일단 구현, 문서는 나중에". 어느 쪽이든 진행 |
+| small | Copy, styling, bug fixes, refactoring | Leave docs alone. Just do it |
+| medium | Add/change a feature, add a screen | Implement right away. After finishing, reflect **one line** in the relevant doc (add a spec table row, add to the screen list) + 1 Decision log line. Do not ask |
+| large | Change a core feature or core task, change target users or goals, implement an out-of-scope item | Before implementing, `AskUserQuestion` **once**: "Update planning, then proceed / Implement now, docs later". Proceed either way |
 
-- 문서와 코드가 어긋난 것을 발견해도 작업을 멈추지 않음. 허브 열린 질문에 한 줄 남기고 계속함.
-- 문서를 맞추는 일은 단계를 넘어갈 때(특히 7 → 8, 9 → 10) 한 번에 몰아서 함.
-- "문서 먼저 고쳐야 한다"는 이유로 사용자 요청을 거절하거나 미루지 않음.
+- On finding a doc/code mismatch, do not stop work. Leave one line in hub Open questions and continue.
+- Do the doc catch-up in one batch when crossing stages (especially 7 → 8, 9 → 10).
+- Never refuse or defer a user request because "the docs must be fixed first".
 
-## 위키 링크 규칙
+## Wiki link rules
 
-- 다른 문서를 언급할 때는 **항상 상대 링크.** 파일명만 적지 않음.
-- 기능은 ID 로 링크: `[F-01](02-spec.md#f-01)`. 새 기능을 추가하면 `02-spec.md` 에 `<a id="f-xx"></a>` 앵커를 함께 넣음.
-- 화면은 slug 로 링크: `[home](04-wireframe/home.html)`.
-- 과업·이슈 ID(T1, U-01, I-01)도 정의된 문서를 링크함.
-- 문서 상단 네비 줄(`← 전체 흐름 · 이전 · 다음`)은 지우지 않음.
+- When mentioning another document, **always use a relative link.** Never write a bare file name.
+- Link features by ID: `[F-01](02-spec.md#f-01)`. When adding a new feature, also add an `<a id="f-xx"></a>` anchor in `02-spec.md`.
+- Link screens by slug: `[home](04-wireframe/home.html)`.
+- Link task/issue IDs (T1, U-01, I-01) to the document that defines them.
+- Do not delete the nav line at the top of a document (`← Overall flow · Previous · Next`).
 
-## 진행 판정
+## Progress
 
-- 진행 상태는 각 문서의 `<!-- wf:<단계> status: ... -->` 마커에서만 파생됨. 다른 곳에 "완료"를 저장하지 않음.
-- 완료 값: 대부분 `done`. 검토 `approved`, 프리릴리즈 `deployed`, 릴리즈 `released`.
-- 마커 `status` 를 완료 값으로 바꾸는 것은 **사용자가 AskUserQuestion 으로 확인한 뒤에만.**
+- Progress is derived only from each document's `<!-- wf:<stage> status: ... -->` marker. Never store "done" anywhere else.
+- Done values: `done` for most. Review `approved`, pre-release `deployed`, release `released`.
+- Change a marker `status` to a done value **only after the user confirms via AskUserQuestion.**
 
-## 단계 스킬 공통 절차
+## Common stage procedure
 
-1. **위치 확인** — `WFCTL status`. `.workflow` 가 없으면 `/wf-init` 안내 후 멈춤.
-2. **선행 단계 확인** — 앞 단계가 미완료면 `AskUserQuestion` 으로 묻는다: "선행 단계 먼저 진행" / "그대로 진행". 막지 않음. 그대로 진행하면 결정 로그에 남김.
-3. **문서 생성** — `WFCTL new <단계 키>`. 이미 있으면 덮어쓰지 않고 이어서 작성.
-4. **입력 읽기** — 해당 스킬이 지정한 상위 문서를 실제로 읽음. 읽지 않고 쓰지 않음.
-5. **작성** — 모르는 것은 추측하지 않고 `AskUserQuestion` 으로 묻는다. 한 번에 최대 4문항, 선택지는 구체적으로. 끝내 정해지지 않으면 문서의 가정 절이나 허브 열린 질문에 남김.
-6. **확인** — 결과를 요약해 보여주고 `AskUserQuestion` 으로 "완료 / 수정 필요"를 받음.
-7. **마무리** — 완료면 마커 status 를 완료 값으로 변경 → 허브 결정 로그에 한 줄 추가(날짜·단계·결정·근거 링크) → `WFCTL sync` → 다음 스킬 안내.
+1. **Locate** — `WFCTL status`. If `.workflow` is missing, point to `/wf-init` and stop.
+2. **Check prerequisites** — if an earlier stage is incomplete, `AskUserQuestion`: "Do the prerequisite stage first" / "Proceed anyway". Do not block. If proceeding anyway, record it in the Decision log.
+3. **Create the document** — `WFCTL new <stage key>`. If it already exists, continue writing it; never overwrite.
+4. **Read inputs** — actually read the upstream documents the skill names. Never write without reading.
+5. **Write** — do not guess what you do not know; ask with `AskUserQuestion`. At most 4 questions at a time, with concrete options. If something stays undecided, record it in the document's assumptions section or hub Open questions.
+6. **Confirm** — summarize the result and get "Done / Needs changes" via `AskUserQuestion`.
+7. **Wrap up** — if done: set the marker status to its done value → add one Decision log line to the hub (date, stage, decision, link to evidence) → `WFCTL sync` → point to the next skill.
 
-## 되돌아가기
+## Going back
 
-- 완료된 상위 문서를 고치면, 그 문서를 링크하는 하위 문서를 찾아 영향 여부를 확인함.
-- 영향이 있으면 사용자에게 알리고 `AskUserQuestion` 으로 하위 문서 status 를 `draft` 로 되돌릴지 물음.
-- 변경 사실은 결정 로그에 남김.
+- When editing a completed upstream document, find the downstream documents that link to it and check whether they are affected.
+- If affected, tell the user and ask via `AskUserQuestion` whether to revert the downstream document's status to `draft`.
+- Record the change in the Decision log.
 
-## 날짜
+## Dates
 
-- 문서에 적는 날짜는 로컬 날짜(`YYYY-MM-DD`). 템플릿의 `{{DATE}}` 는 wfctl 이 채움.
+- Dates written in documents are local dates (`YYYY-MM-DD`). wfctl fills `{{DATE}}` in templates.

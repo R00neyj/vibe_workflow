@@ -1,42 +1,42 @@
-# {{PROJECT}} — 프로토타입
+# {{PROJECT}} — Prototype
 
 {{NAV}}
 
-작성일: {{DATE}}
+Created: {{DATE}}
 
 <!-- wf:prototype
 status: draft
 -->
 
-> 근거: [기능 명세](02-spec.md), 승인된 [와이어프레임](04-wireframe/index.html). 완료 조건: Must 기능이 동작하고 실행 방법이 적힘 → `status: done`
+> Basis: [feature spec](02-spec.md), approved [wireframe](04-wireframe/index.html). Done when: Must features work and run instructions are written → `status: done`
 
-## 한눈에
+## At a glance
 
 - 
 
-## 기술 선택
+## Tech choices
 
-| 항목 | 선택 | 근거 |
+| Item | Choice | Reason |
 | --- | --- | --- |
 | | | |
 
-## 실행 방법
+## How to run
 
 ```
 ```
 
-## 구현 범위
+## Implementation scope
 
-| 기능 | 상태 | 비고 |
+| Feature | Status | Notes |
 | --- | --- | --- |
-| [F-01](02-spec.md#f-01) | 구현 / 목업 / 미구현 | |
+| [F-01](02-spec.md#f-01) | implemented / mock / not implemented | |
 
-## 와이어프레임과 달라진 점
+## Differences from the wireframe
 
-| 화면 | 변경 | 이유 |
+| Screen | Change | Reason |
 | --- | --- | --- |
 | | | |
 
-## 체크 결과
+## Check results
 
-`wfctl check` 결과 요약.
+Summary of `wfctl check` results.
