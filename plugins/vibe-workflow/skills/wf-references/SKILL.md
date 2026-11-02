@@ -1,6 +1,6 @@
 ---
 name: wf-references
-description: vibe-workflow stage 4 (UI). Collect screen-level UI references before drawing wireframes — layouts, components, interactions and a visual direction — per screen in the UX flow. Use when the user says "find UI references", "design references", "show me examples of this screen", "what do similar apps look like", "moodboard", "UI inspiration".
+description: vibe-workflow stage 4 (UI, full mode). Collect screen-level UI references before drawing wireframes — layouts, components, interactions and a visual direction — per screen in the UX flow. Use when the user says "find UI references", "design references", "show me examples of this screen", "what do similar apps look like", "moodboard", "UI inspiration".
 ---
 
 # wf-references — 4. UI references [UI]

@@ -30,4 +30,4 @@ Before starting, Read `${CLAUDE_PLUGIN_ROOT}/reference/stage-rules.md` and follo
 ## Done
 
 When every screen in the flow exists and the links connect: `status: done` → `WFCTL sync` → `/wf-wireframe-review`.
-This stage can complete without user approval. Approval comes in stage 7.
+This stage can complete without user approval; approval comes in stage 7. In lite mode (no stage 7), finish with one `AskUserQuestion`: "Looks right / Change these screens", fix, then `status: done` → `/wf-prototype`.

@@ -9,26 +9,31 @@ const CONFIG_FILE = 'config.json'
 
 const PHASES = ['Planning', 'UX', 'UI', 'Development', 'Release']
 
+// lite: false = skipped in lite mode
 const STAGES = [
   { n: 1, key: 'brief', phase: 'Planning', title: 'Research & brief', file: '01-brief.md', skill: 'wf-brief', done: 'done' },
   { n: 2, key: 'spec', phase: 'Planning', title: 'Feature spec', file: '02-spec.md', skill: 'wf-spec', done: 'done' },
   { n: 3, key: 'flow', phase: 'UX', title: 'UX flowchart', file: '03-flow.md', skill: 'wf-flow', done: 'done' },
-  { n: 4, key: 'references', phase: 'UI', title: 'UI references', file: '04-references.md', skill: 'wf-references', done: 'done' },
+  { n: 4, key: 'references', phase: 'UI', title: 'UI references', file: '04-references.md', skill: 'wf-references', done: 'done', lite: false },
   { n: 5, key: 'design', phase: 'UI', title: 'Design system (DESIGN.md)', file: '../DESIGN.md', skill: 'wf-design', done: 'done' },
   { n: 6, key: 'wireframe', phase: 'UI', title: 'Low-fi wireframe', file: '06-wireframe/index.html', skill: 'wf-wireframe', done: 'done' },
-  { n: 7, key: 'wireframe-review', phase: 'UI', title: 'Wireframe review', file: '07-wireframe-review.md', skill: 'wf-wireframe-review', done: 'approved' },
-  { n: 8, key: 'prototype', phase: 'Development', title: 'Prototype', file: '08-prototype.md', skill: 'wf-prototype', done: 'done' },
-  { n: 9, key: 'usability', phase: 'Development', title: 'Usability test', file: '09-usability.md', skill: 'wf-usability', done: 'done' },
-  { n: 10, key: 'prerelease', phase: 'Release', title: 'Pre-release', file: '10-prerelease.md', skill: 'wf-prerelease', done: 'deployed' },
-  { n: 11, key: 'internal-test', phase: 'Release', title: 'Internal test', file: '11-internal-test.md', skill: 'wf-internal-test', done: 'done' },
-  { n: 12, key: 'release', phase: 'Release', title: 'Release', file: '12-release.md', skill: 'wf-release', done: 'released' },
+  { n: 7, key: 'wireframe-review', phase: 'UI', title: 'Wireframe review', file: '07-wireframe-review.md', skill: 'wf-wireframe-review', done: 'approved', lite: false },
+  { n: 8, key: 'tech', phase: 'Development', title: 'Tech design', file: '08-tech.md', skill: 'wf-tech', done: 'done', lite: false },
+  { n: 9, key: 'prototype', phase: 'Development', title: 'Prototype', file: '09-prototype.md', skill: 'wf-prototype', done: 'done' },
+  { n: 10, key: 'usability', phase: 'Development', title: 'Usability test', file: '10-usability.md', skill: 'wf-usability', done: 'done' },
+  { n: 11, key: 'hardening', phase: 'Development', title: 'Hardening & verification', file: '11-hardening.md', skill: 'wf-hardening', done: 'done' },
+  { n: 12, key: 'prerelease', phase: 'Release', title: 'Pre-release', file: '12-prerelease.md', skill: 'wf-prerelease', done: 'deployed', lite: false },
+  { n: 13, key: 'internal-test', phase: 'Release', title: 'Internal test', file: '13-internal-test.md', skill: 'wf-internal-test', done: 'done', lite: false },
+  { n: 14, key: 'release', phase: 'Release', title: 'Release', file: '14-release.md', skill: 'wf-release', done: 'released' },
 ]
+
+const MODES = ['full', 'lite']
 
 // Per-stage template copies: [template path, destination relative to .workflow]
 const STAGE_TEMPLATES = {
   'design': [['DESIGN.md', '../DESIGN.md']],
   'wireframe': [['06-wireframe/index.html', '06-wireframe/index.html'], ['06-wireframe/wireframe.css', '06-wireframe/wireframe.css']],
-  'internal-test': [['11-internal-test.md', '11-internal-test.md'], ['11-tester-guide.md', '11-tester-guide.md']],
+  'internal-test': [['13-internal-test.md', '13-internal-test.md'], ['13-tester-guide.md', '13-tester-guide.md']],
 }
 
 const DEFAULT_CONFIG = {
@@ -38,6 +43,7 @@ const DEFAULT_CONFIG = {
     lint: { enabled: false, command: '' },
     typecheck: { enabled: false, command: '' },
   },
+  mode: 'full',
   run: '',
   deploy: { prerelease: '', release: '' },
 }
@@ -60,6 +66,10 @@ function findStage(keyOrNumber) {
   const k = String(keyOrNumber || '').toLowerCase()
   return STAGES.find(function (s) { return s.key === k || String(s.n) === k }) || null
 }
+
+function inMode(stage, mode) { return mode !== 'lite' || stage.lite !== false }
+
+function activeStages(mode) { return STAGES.filter(function (s) { return inMode(s, mode) }) }
 
 /** Stage doc path relative to the project root, for display. */
 function docPath(stage) { return path.posix.normalize(path.posix.join(WF_DIR, stage.file)) }
@@ -137,9 +147,12 @@ function stageStatus(root, stage) {
 }
 
 function progress(root) {
-  const rows = STAGES.map(function (s) { return Object.assign({ stage: s }, stageStatus(root, s)) })
-  const next = rows.find(function (r) { return !r.complete }) || null
-  return { rows: rows, next: next ? next.stage : null }
+  const mode = readConfig(root).mode
+  const rows = STAGES.map(function (s) {
+    return Object.assign({ stage: s, skipped: !inMode(s, mode) }, stageStatus(root, s))
+  })
+  const next = rows.find(function (r) { return !r.skipped && !r.complete }) || null
+  return { mode: mode, rows: rows, next: next ? next.stage : null }
 }
 
 // --- wiki links / hub ----------------------------------------------------
@@ -150,6 +163,7 @@ const INDEX_END = '<!-- wf:index:end -->'
 const STATUS_LABEL = { missing: 'not started', 'no-marker': 'no marker', draft: 'in progress' }
 
 function statusLabel(row) {
+  if (row.skipped) return 'skipped (lite)'
   if (row.complete) return 'done'
   return STATUS_LABEL[row.status] || row.status
 }
@@ -162,17 +176,18 @@ function linkFrom(from, target) {
 
 function stageLink(stage, from) { return '[' + stage.n + '. ' + stage.title + '](' + linkFrom(from, stage.file) + ')' }
 
-/** Nav line at the top of a stage doc. */
-function navLine(stage) {
-  const i = STAGES.indexOf(stage)
+/** Nav line at the top of a stage doc; prev/next skip stages the mode leaves out. */
+function navLine(stage, mode) {
+  const list = activeStages(mode)
+  const i = list.indexOf(stage)
   const parts = ['[← Hub](' + linkFrom(stage, HUB_FILE) + ')']
-  if (i > 0) parts.push('Prev: ' + stageLink(STAGES[i - 1], stage))
-  if (i < STAGES.length - 1) parts.push('Next: ' + stageLink(STAGES[i + 1], stage))
+  if (i > 0) parts.push('Prev: ' + stageLink(list[i - 1], stage))
+  if (i >= 0 && i < list.length - 1) parts.push('Next: ' + stageLink(list[i + 1], stage))
   return parts.join(' · ')
 }
 
 function renderIndex(p) {
-  const lines = ['| Phase | # | Doc | Status | Skill |', '| --- | --- | --- | --- | --- |']
+  const lines = ['Mode: **' + p.mode + '**', '', '| Phase | # | Doc | Status | Skill |', '| --- | --- | --- | --- | --- |']
   for (const row of p.rows) {
     const s = row.stage
     const cur = p.next === s ? ' ◀ now' : ''
@@ -200,6 +215,8 @@ module.exports = {
   WF_DIR: WF_DIR,
   CONFIG_FILE: CONFIG_FILE,
   PHASES: PHASES,
+  MODES: MODES,
+  inMode: inMode,
   STAGES: STAGES,
   DEFAULT_CONFIG: DEFAULT_CONFIG,
   findRoot: findRoot,

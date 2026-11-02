@@ -1,9 +1,9 @@
 ---
 name: wf-prerelease
-description: vibe-workflow stage 10 (Release). Deploy a pre-release for internal testing and record the version and URL. Use when the user says "pre-release", "deploy to staging", "put it on the test server", "preview deploy", "beta deploy".
+description: vibe-workflow stage 12 (Release, full mode). Deploy a pre-release for internal testing and record the version and URL. Use when the user says "pre-release", "deploy to staging", "put it on the test server", "preview deploy", "beta deploy".
 ---
 
-# wf-prerelease — 10. Pre-release [Release]
+# wf-prerelease — 12. Pre-release [Release]
 
 Before starting, Read `${CLAUDE_PLUGIN_ROOT}/reference/stage-rules.md` and follow the common procedure. Stage key: `prerelease`.
 

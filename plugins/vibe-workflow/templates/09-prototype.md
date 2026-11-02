@@ -16,6 +16,8 @@ status: draft
 
 ## Tech choices
 
+Decided in [tech design](08-tech.md); in lite mode record them here.
+
 | Item | Choice | Reason |
 | --- | --- | --- |
 | | | |
@@ -36,6 +38,14 @@ status: draft
 | Screen | Change | Reason |
 | --- | --- | --- |
 | | | |
+
+## Design check
+
+Captures of each core screen compared against [DESIGN.md](../DESIGN.md) and the wireframe.
+
+| Screen | Capture | Tokens/components match | Off from DESIGN.md |
+| --- | --- | --- | --- |
+| home | | yes / no | |
 
 ## Check results
 

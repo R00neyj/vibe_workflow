@@ -16,7 +16,7 @@ Before starting, Read `${CLAUDE_PLUGIN_ROOT}/reference/stage-rules.md` and follo
 1. Extract feature candidates from the brief's target outcome and propose them as a table ("Feature list"). Link each to its source section.
 2. Collect via `AskUserQuestion`:
    - Priority (Must/Should/Could/Won't) — with many candidates, start with Must
-   - **Core features** — what the user must be able to accomplish with this product. 1-5. They become the stage 9 usability-test tasks
+   - **Core features** — what the user must be able to accomplish with this product. 1-5. They become the stage 10 usability-test tasks
 3. Per feature ("Feature details"), at most 10 lines: purpose, input, behavior, result, exceptions, acceptance criteria. Put an `<a id="f-xx"></a>` anchor before each feature.
 4. If a feature overlaps an out-of-scope item, flag it and ask the user.
 5. Beyond 8 features, split details into `02-spec/F-xx.md` (length budget in the common rules).

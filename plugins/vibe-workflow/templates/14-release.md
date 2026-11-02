@@ -8,6 +8,7 @@ Created: {{DATE}}
 status: draft
 version:
 url:
+check_on:
 -->
 
 > The user decides whether to run the release. Done when: deployment confirmed → `status: released`
@@ -18,10 +19,11 @@ url:
 
 ## Release decision basis
 
-- [ ] Brief success criteria met
+- [ ] Brief success criteria are measurable (checked again on `check_on`)
 - [ ] All Must features implemented
 - [ ] All core usability test tasks succeeded
-- [ ] 0 blocker issues in the internal test
+- [ ] [Hardening](11-hardening.md): every Must acceptance criterion verified, no open high issue
+- [ ] 0 blocker issues in the internal test (full mode)
 - [ ] All `wfctl check` items pass
 
 ## Deferred issues
@@ -35,6 +37,14 @@ url:
 ### Version
 
 -
+
+## Success check
+
+On `check_on` (default: release + 14 days), measure the brief's success criteria. Misses feed the next feature-add cycle.
+
+| Success criterion ([brief](01-brief.md#6-success-criteria)) | How measured | Result | Next action |
+| --- | --- | --- | --- |
+| | | met / not met | |
 
 ## Deploy record
 

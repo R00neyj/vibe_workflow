@@ -1,6 +1,6 @@
 # vibe-workflow
 
-A Claude Code plugin that guides vibe coding through 12 stages: **Planning → UX → UI → Development → Release**.
+A Claude Code plugin that guides vibe coding through 14 stages (9 in lite mode): **Planning → UX → UI → Development → Release**.
 You build with one hub document and a wiki of per-stage documents. No blocking hooks — everything is a skill. A read-only progress panel appears on the right side of the screen.
 
 ## Flow
@@ -10,20 +10,35 @@ You build with one hub document and a wiki of per-stage documents. No blocking h
 | Planning | 1 | Research & brief | `01-brief.md` | `/wf-brief` |
 | Planning | 2 | Feature spec | `02-spec.md` | `/wf-spec` |
 | UX | 3 | UX flowchart | `03-flow.md` (mermaid) | `/wf-flow` |
-| UI | 4 | UI references (screen-level layouts, components, interactions, visual direction) | `04-references.md` | `/wf-references` |
+| UI | 4 | UI references * (screen-level layouts, components, interactions, visual direction) | `04-references.md` | `/wf-references` |
 | UI | 5 | Design system — design tokens + component definitions | **`DESIGN.md`** (project root) | `/wf-design` |
 | UI | 6 | Low-fi wireframe | `06-wireframe/*.html` | `/wf-wireframe` |
-| UI | 7 | Wireframe review (user approval) | `07-wireframe-review.md` | `/wf-wireframe-review` |
-| Development | 8 | Prototype | source code + `08-prototype.md` | `/wf-prototype` |
-| Development | 9 | Usability test (give only the goal → investigate where users get stuck → fix) | `09-usability.md` | `/wf-usability` |
-| Release | 10 | Pre-release | `10-prerelease.md` | `/wf-prerelease` |
-| Release | 11 | Internal test | `11-internal-test.md`, `11-tester-guide.md` | `/wf-internal-test` |
-| Release | 12 | Release | `12-release.md` | `/wf-release` |
+| UI | 7 | Wireframe review * (user approval) | `07-wireframe-review.md` | `/wf-wireframe-review` |
+| Development | 8 | Tech design * (stack, data model, API, auth, environments) | `08-tech.md` | `/wf-tech` |
+| Development | 9 | Prototype (+ design check against DESIGN.md) | source code + `09-prototype.md` | `/wf-prototype` |
+| Development | 10 | Usability test (self-test: give only the goal → find where it gets stuck → fix) | `10-usability.md` | `/wf-usability` |
+| Development | 11 | Hardening & verification (acceptance criteria with evidence, errors, edge cases, security, a11y) | `11-hardening.md` | `/wf-hardening` |
+| Release | 12 | Pre-release * | `12-prerelease.md` | `/wf-prerelease` |
+| Release | 13 | Internal test * (real usability findings from other people) | `13-internal-test.md`, `13-tester-guide.md` | `/wf-internal-test` |
+| Release | 14 | Release (+ success check on `check_on`, default 14 days later) | `14-release.md` | `/wf-release` |
+
+* skipped in lite mode.
+
+## Modes
+
+`/wf-init` asks which one; switch any time with `wfctl mode <lite|full>`.
+
+| Mode | Stages | For |
+| --- | --- | --- |
+| `full` | all 14 | a product others will use |
+| `lite` | 9 — skips 4, 7, 8, 12, 13 | small or personal projects; code starts at stage 9 after 5 short docs |
+
+In lite mode the neighbouring skills absorb the essentials: `/wf-design` asks for 1–2 liked apps instead of a references stage, `/wf-wireframe` ends with a quick approval, `/wf-prototype` picks the stack, `/wf-release` deploys straight after hardening.
 
 ## DESIGN.md — the UI source of truth
 
 `/wf-design` writes `DESIGN.md` at the project root right after the UI references: semantic tokens (color, typography, spacing, radius, shadow, motion, breakpoints) and component definitions (variants, states, tokens used, screens).
-It never "finishes". The wireframe labels boxes with its component names, the prototype turns its tokens into code first, and every later UI fix (usability, internal test, ad-hoc requests) reads it first and uses only its tokens and components. New tokens and components are added there, with a Change log line, before they are used.
+It never "finishes". The wireframe labels boxes with its component names, the prototype turns its tokens into code first, and every later UI fix (hardening, usability, internal test, ad-hoc requests) reads it first and uses only its tokens and components. New tokens and components are added there, with a Change log line, before they are used.
 Optionally `/wf-design` adds one line to the project's `CLAUDE.md` so UI work outside the stages also reads it.
 
 No need to memorize stage names. Say **"next step"** and `/wf-next` looks at where you are and continues.
@@ -40,7 +55,7 @@ No need to memorize stage names. Say **"next step"** and `/wf-next` looks at whe
 Opening a session in a project with `.workflow/` shows the progress panel. Its only data source is `wfctl status --json` (read-only).
 
 ```
-vibe-workflow · 6/12
+vibe-workflow · 6/14
 [-] ✓ Planning    ██████ 2/2
         ✓ 1. Research & brief
         ✓ 2. Feature spec
@@ -50,16 +65,16 @@ vibe-workflow · 6/12
         ✓ 5. Design system (DESIGN.md)
         ✓ 6. Low-fi wireframe
         ▶ 7. Wireframe review
-[+] · Development ░░░░░░ 0/2
+[+] · Development ░░░░░░ 0/4
 [+] · Release     ░░░░░░ 0/3
 
 Prev 6. Low-fi wireframe
 Now  7. Wireframe review → /wf-wireframe-review
-Next 8. Prototype
+Next 8. Tech design
 ```
 
 - Wide window (about 110+ columns): docks on the right. `[+]`/`[-]` expands a phase (the current phase is expanded by default).
-- Narrow window: a single status line below the prompt — `Progress 6/12 ▶ [UI] 7. Wireframe review → /wf-wireframe-review · Next 8. Prototype`
+- Narrow window: a single status line below the prompt — `Progress 6/14 ▶ [UI] 7. Wireframe review → /wf-wireframe-review · Next 8. Tech design` (lite mode adds `· lite` to the panel header)
 - `/progress`: opens the panel and prints the full stage list as text.
 - Refresh: 1.5 seconds after a Bash, Edit, Write, Skill, or Agent call, plus every 30 seconds.
 - Injects nothing into prompts or tool calls and blocks nothing. Does nothing in projects without `.workflow/`.
@@ -90,7 +105,7 @@ Docs are a tool for keeping direction aligned, not a permit. The level of involv
 | medium | adding a feature or screen | Implement right away, then add one line to the docs afterward |
 | large | changing a core feature, target users, or goals | Asked once before implementing. Proceeds with either answer |
 
-Doc cleanup is batched into "doc catch-up" in `/wf-next` at stage transitions (9→10, 11→12).
+Doc cleanup is batched into "doc catch-up" in `/wf-next` at stage transitions (10→11, 11→12, 13→14).
 Detailed rules: [`plugins/vibe-workflow/reference/stage-rules.md`](plugins/vibe-workflow/reference/stage-rules.md)
 
 ## What is not enforced
@@ -131,7 +146,7 @@ While developing the plugin, skip installing and use `claude --plugin-dir "$(pwd
 
 Not compatible. The 0.1.x `.workflow/` (state.json, tasks/) is not read. Run `wfctl init` fresh and move what you need into the new docs.
 
-From 0.2.x/0.3.x: 0.4.0 inserts stages 4 (UI references) and 5 (DESIGN.md), so stage files from 04 on were renumbered (`04-wireframe` → `06-wireframe`, … `10-release.md` → `12-release.md`). Rename the files in `.workflow/` to the new numbers, then `wfctl sync`.
+From 0.2.x–0.4.x: 0.5.0 numbers stage files after their stage (14 stages): `04-references.md`, `06-wireframe/`, `07-wireframe-review.md`, `08-tech.md`, `09-prototype.md`, `10-usability.md`, `11-hardening.md`, `12-prerelease.md`, `13-internal-test.md`, `14-release.md`, and `DESIGN.md` at the project root. Rename existing files to these names, then `wfctl sync`.
 
 ## wfctl
 
@@ -139,8 +154,9 @@ The CLI the skills use. Humans can use it directly too.
 
 ```bash
 WF="node <plugin>/scripts/wfctl.js"
-$WF init                     # create .workflow/config.json + hub (auto-detects check/run commands)
-$WF status [--json]          # progress across the 12 stages and the next stage (--json: for the panel)
+$WF init [--mode lite]       # create .workflow/config.json + hub (auto-detects check/run commands)
+$WF status [--json]          # progress and the next stage (--json: for the panel)
+$WF mode lite                # switch mode (full | lite)
 $WF sync                     # regenerate the hub progress table
 $WF new spec                 # create a stage doc (by key or number: new 2)
 $WF screen home "Home"       # create a wireframe screen file
@@ -161,6 +177,7 @@ $WF doctor
     "lint":      { "enabled": false, "command": "" },
     "typecheck": { "enabled": true,  "command": "npx tsc --noEmit" }
   },
+  "mode": "full",
   "run": "npm run dev",
   "deploy": { "prerelease": "", "release": "" }
 }
@@ -179,7 +196,7 @@ plugins/vibe-workflow/
 ├── types/index.d.ts            Panel state type contract
 ├── scripts/wfctl.js            CLI
 ├── scripts/lib/wf.js           Stage definitions, marker parsing, progress judgment, hub rendering
-├── skills/wf-*/SKILL.md        15 skills
+├── skills/wf-*/SKILL.md        17 skills
 └── templates/                  Hub + stage docs + wireframe HTML
 ```
 

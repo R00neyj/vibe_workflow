@@ -10,20 +10,31 @@ Every `wf-*` stage skill follows this document before starting.
 DESIGN.md                   5. Design system — project root, living doc      [UI]
 .workflow/
 ├── README.md               hub. Overall flow, progress table, decision log, open questions
-├── 01-brief.md             1. Research & brief        [Planning]
-├── 02-spec.md              2. Feature spec            [Planning]
-├── 03-flow.md              3. UX flowchart            [UX]
-├── 04-references.md        4. UI references           [UI]
-├── 04-references/             captures
-├── 06-wireframe/           6. Low-fi wireframe        [UI]
-├── 07-wireframe-review.md  7. Wireframe review        [UI]
-├── 08-prototype.md         8. Prototype               [Development]
-├── 09-usability.md         9. Usability test          [Development]
-├── 10-prerelease.md        10. Pre-release            [Release]
-├── 11-internal-test.md     11. Internal test          [Release]
-├── 11-tester-guide.md          Guide handed to testers
-└── 12-release.md           12. Release                [Release]
+├── config.json             mode, checks, run, deploy
+├── 01-brief.md             1. Research & brief          [Planning]
+├── 02-spec.md              2. Feature spec              [Planning]
+├── 03-flow.md              3. UX flowchart              [UX]
+├── 04-references.md        4. UI references *           [UI]
+├── 06-wireframe/           6. Low-fi wireframe          [UI]
+├── 07-wireframe-review.md  7. Wireframe review *        [UI]
+├── 08-tech.md              8. Tech design *             [Development]
+├── 09-prototype.md         9. Prototype                 [Development]
+├── 10-usability.md         10. Usability test           [Development]
+├── 11-hardening.md         11. Hardening & verification [Development]
+├── 12-prerelease.md        12. Pre-release *            [Release]
+├── 13-internal-test.md     13. Internal test *          [Release]
+├── 13-tester-guide.md          Guide handed to testers
+└── 14-release.md           14. Release                  [Release]
+* skipped in lite mode
 ```
+
+## Modes
+
+`.workflow/config.json` `mode`: `full` (14 stages) or `lite` (9 stages; skips 4, 7, 8, 12, 13). Switch with `WFCTL mode <lite|full>`.
+
+- Skipped stages are never "next" and are not counted. The skills of the stages around them absorb the essentials (each skill says how under "lite mode").
+- The next skill to point to is always the `Next:` line of `WFCTL status`, which already skips what the mode leaves out.
+- The user may still run a skipped stage's skill by hand; switch to `full` if they want it tracked.
 
 - The hub (`README.md`) is the only entry point. Opening it tells the user how far along things are.
 - **Never write by hand** between `<!-- wf:index:begin -->` and `<!-- wf:index:end -->` in the hub. `WFCTL sync` redraws it.
@@ -53,7 +64,7 @@ The user must be able to read a document in 1-2 minutes. A long document goes un
 
 `DESIGN.md` (project root) holds the design tokens and component definitions. Unlike stage docs it never "finishes".
 
-- **Read it before any UI work**: wireframe, prototype, usability fixes, internal-test fixes, and any UI request outside the stages.
+- **Read it before any UI work**: wireframe, prototype, usability fixes, hardening, internal-test fixes, and any UI request outside the stages.
 - Use only its tokens and components. Never hardcode a color, size, spacing, radius, shadow or duration that is not a token.
 - Need something new → add it to DESIGN.md (table row + Change log line), then use it. A new variant or token is a medium change: do it, no question. Changing a core token (primary color, font) that touches every screen is large: ask once.
 - Code tokens mirror DESIGN.md names (e.g. `color.primary` → `--color-primary`). If code and DESIGN.md drift, fix the code to match, or ask which one is right.
@@ -71,7 +82,7 @@ When the user wants something, do it first and catch the docs up afterward.
 | large | Change a core feature or core task, change target users or goals, implement an out-of-scope item | Before implementing, `AskUserQuestion` **once**: "Update planning, then proceed / Implement now, docs later". Proceed either way |
 
 - On finding a doc/code mismatch, do not stop work. Leave one line in hub Open questions and continue.
-- Do the doc catch-up in one batch when crossing stages (especially 9 → 10, 11 → 12).
+- Do the doc catch-up in one batch when crossing stages (especially 10 → 11, 11 → 12, 13 → 14).
 - Never refuse or defer a user request because "the docs must be fixed first".
 
 ## Wiki link rules
@@ -96,7 +107,7 @@ When the user wants something, do it first and catch the docs up afterward.
 4. **Read inputs** — actually read the upstream documents the skill names. Never write without reading.
 5. **Write** — do not guess what you do not know; ask with `AskUserQuestion`. At most 4 questions at a time, with concrete options. If something stays undecided, record it in the document's assumptions section or hub Open questions.
 6. **Confirm** — summarize the result and get "Done / Needs changes" via `AskUserQuestion`.
-7. **Wrap up** — if done: set the marker status to its done value → add one Decision log line to the hub (date, stage, decision, link to evidence) → `WFCTL sync` → point to the next skill.
+7. **Wrap up** — if done: set the marker status to its done value → add one Decision log line to the hub (date, stage, decision, link to evidence) → `WFCTL sync` → point to the next skill (the `Next:` line of `WFCTL status`).
 
 ## Going back
 

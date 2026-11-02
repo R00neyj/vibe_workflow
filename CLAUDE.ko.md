@@ -9,7 +9,9 @@
 `vibe-workflow` Claude Code 플러그인의 소스다. 여기서 만드는 것은 **다른 프로젝트에 설치되는 워크플로우 시스템**이다.
 이 저장소 자체는 그 워크플로우의 적용 대상이 아니다(`.workflow/` 가 없다).
 
-워크플로우는 5개 큰 단계로 묶인 12단계다: Planning(1 기획서, 2 기능 명세) → UX(3 플로우) → UI(4 UI 레퍼런스, 5 디자인 시스템, 6 와이어프레임, 7 와이어프레임 검토) → Development(8 프로토타입, 9 사용성 테스트) → Release(10 프리릴리즈, 11 내부 테스트, 12 릴리즈).
+워크플로우는 5개 큰 단계로 묶인 14단계다: Planning(1 기획서, 2 기능 명세) → UX(3 플로우) → UI(4 UI 레퍼런스, 5 디자인 시스템, 6 와이어프레임, 7 와이어프레임 검토) → Development(8 기술 설계, 9 프로토타입, 10 사용성 테스트, 11 보강·검증) → Release(12 프리릴리즈, 13 내부 테스트, 14 릴리즈).
+
+`lite` 모드(`.workflow/config.json` 의 `mode`)는 4, 7, 8, 12, 13단계를 건너뛴다. `STAGES` 에서 `lite: false` 로 표시한다. 건너뛴 단계는 다음 단계가 되지 않고 개수·네비 줄·`status --json` 에서 빠진다. mode 는 판정이 아니라 설정이므로 `config.json` 에 둬도 된다.
 
 **플러그인이 싣는 모든 것은 영어다**(스킬과 그 호출 문구, `stage-rules.md`, 템플릿, wfctl 출력, 패널, README). 한국어는 `CLAUDE.ko.md` 뿐이다. 이 상태를 유지한다.
 
@@ -59,7 +61,7 @@ claude plugin list          # Status 가 enabled 인지 확인. 로드 실패도
 ### 허브 + 위키 문서
 
 대상 프로젝트에서 `.workflow/README.md` 가 허브다: 개요, 진행 표, 결정 로그, 열린 질문.
-각 단계는 위키 페이지 하나(`01-brief.md` … `12-release.md`, `06-wireframe/*.html`)를 쓰고, 허브와 이웃 단계로 가는 네비 줄을 두며, ID 로 상호 링크한다(`[F-01](02-spec.md#f-01)`).
+각 단계는 위키 페이지 하나(`01-brief.md` … `14-release.md`, `06-wireframe/*.html`)를 쓰고, 허브와 이웃 단계로 가는 네비 줄을 두며, ID 로 상호 링크한다(`[F-01](02-spec.md#f-01)`).
 진행 표는 `<!-- wf:index:begin -->` 과 `<!-- wf:index:end -->` 사이에 있고 `wfctl sync` 가 다시 그린다. 허브의 나머지는 스킬이 쓴다.
 
 ### DESIGN.md

@@ -10,6 +10,8 @@ status: draft
 
 > Done when: every core task is `success` in the latest round → `status: done`
 
+> This is a self-test by the person who built it: it catches obvious problems only. Real usability findings come from [internal test](13-internal-test.md) with other people.
+
 ## At a glance
 
 - 

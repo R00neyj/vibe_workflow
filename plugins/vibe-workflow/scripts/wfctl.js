@@ -7,7 +7,7 @@ const path = require('path')
 const cp = require('child_process')
 const wf = require('./lib/wf.js')
 
-const VERSION = '0.4.0'
+const VERSION = '0.5.0'
 const CHECK_TIMEOUT_MS = 15 * 60 * 1000
 const OUTPUT_TAIL_LINES = 25
 const SLUG_RE = /^[a-z0-9][a-z0-9-]*$/
@@ -59,6 +59,11 @@ function detectConfig(dir) {
   return cfg
 }
 
+function optionValue(args, name) {
+  const i = args.indexOf(name)
+  return i !== -1 ? args[i + 1] : undefined
+}
+
 function cmdInit(args) {
   const dir = process.cwd()
   const cfgFile = path.join(dir, wf.WF_DIR, wf.CONFIG_FILE)
@@ -66,6 +71,10 @@ function cmdInit(args) {
     die('.workflow already exists. Use --force to re-detect the config.')
   }
   const cfg = detectConfig(dir)
+  const prev = fs.existsSync(cfgFile) ? wf.readConfig(dir).mode : undefined
+  const mode = optionValue(args, '--mode') || prev || cfg.mode
+  if (wf.MODES.indexOf(mode) === -1) die('--mode must be one of: ' + wf.MODES.join(' | '))
+  cfg.mode = mode
   fs.mkdirSync(path.dirname(cfgFile), { recursive: true })
   fs.writeFileSync(cfgFile, JSON.stringify(cfg, null, 2) + '\n')
   const hub = path.join(dir, wf.WF_DIR, wf.HUB_FILE)
@@ -74,6 +83,7 @@ function cmdInit(args) {
   console.log('.workflow created — hub: .workflow/' + wf.HUB_FILE)
   console.log('Detected checks: ' + (wf.enabledChecks(cfg).join(', ') || 'none'))
   console.log('Run command    : ' + (cfg.run || 'none'))
+  console.log('Mode           : ' + cfg.mode)
   console.log('Next step      : /wf-brief (1. Research & brief)')
 }
 
@@ -97,16 +107,18 @@ function cmdSync() {
 }
 
 function statusJson(r, p) {
+  const active = p.rows.filter(function (x) { return !x.skipped })
   return {
+    mode: p.mode,
     root: r,
     hub: path.join(wf.WF_DIR, wf.HUB_FILE).replace(/\\/g, '/'),
-    done: p.rows.filter(function (x) { return x.complete }).length,
-    total: p.rows.length,
+    done: active.filter(function (x) { return x.complete }).length,
+    total: active.length,
     current: p.next ? p.next.n : null,
     phases: wf.PHASES.map(function (phase) {
       return {
         name: phase,
-        stages: p.rows.filter(function (x) { return x.stage.phase === phase }).map(function (x) {
+        stages: active.filter(function (x) { return x.stage.phase === phase }).map(function (x) {
           const s = x.stage
           return { n: s.n, key: s.key, title: s.title, file: wf.docPath(s), skill: s.skill, status: x.status, label: wf.statusLabel(x), complete: x.complete }
         }),
@@ -119,17 +131,31 @@ function cmdStatus(args) {
   const r = requireRoot()
   const p = wf.progress(r)
   if ((args || []).indexOf('--json') !== -1) return console.log(JSON.stringify(statusJson(r, p)))
-  console.log('Project: ' + r)
+  console.log('Project: ' + r + '  (mode: ' + p.mode + ')')
   for (const phase of wf.PHASES) {
     console.log('\n[' + phase + ']')
     for (const row of p.rows.filter(function (x) { return x.stage.phase === phase })) {
-      const mark = row.complete ? 'v' : (p.next === row.stage ? '>' : ' ')
+      const mark = row.skipped ? '-' : row.complete ? 'v' : (p.next === row.stage ? '>' : ' ')
       const s = row.stage
       console.log(' ' + mark + ' ' + String(s.n).padStart(2) + '. ' + s.title + ' — ' + wf.statusLabel(row) + '  (' + wf.docPath(s) + ')')
     }
   }
   if (!p.next) return console.log('\nAll stages done. For a new feature, start again at /wf-spec.')
   console.log('\nNext: ' + p.next.n + '. ' + p.next.title + ' → /' + p.next.skill)
+}
+
+// --- mode -------------------------------------------------------------
+
+function cmdMode(args) {
+  const r = requireRoot()
+  const file = path.join(wf.wfDir(r), wf.CONFIG_FILE)
+  const cfg = JSON.parse(fs.readFileSync(file, 'utf8'))
+  if (!args[0]) return console.log('Mode: ' + (cfg.mode || wf.DEFAULT_CONFIG.mode))
+  if (wf.MODES.indexOf(args[0]) === -1) die('Usage: wfctl mode <' + wf.MODES.join('|') + '>')
+  cfg.mode = args[0]
+  fs.writeFileSync(file, JSON.stringify(cfg, null, 2) + '\n')
+  syncHub(r)
+  console.log('Mode: ' + cfg.mode)
 }
 
 // --- new / screen -------------------------------------------------------
@@ -139,7 +165,7 @@ function cmdNew(args) {
   const stage = wf.findStage(args[0])
   if (!stage) die('Usage: wfctl new <stage>  stages: ' + wf.STAGES.map(function (s) { return s.key }).join(' | '))
   const force = args.indexOf('--force') !== -1
-  const vars = { DATE: wf.localDate(), PROJECT: path.basename(r), NAV: wf.navLine(stage) }
+  const vars = { DATE: wf.localDate(), PROJECT: path.basename(r), NAV: wf.navLine(stage, wf.readConfig(r).mode) }
   for (const pair of wf.stageTemplates(stage)) {
     const rel = path.normalize(path.join(wf.WF_DIR, pair[1]))
     const made = writeNew(path.join(r, rel), render(pair[0], vars), force)
@@ -220,8 +246,9 @@ function cmdDoctor() {
 const HELP = [
   'wfctl ' + VERSION + ' — vibe-workflow',
   '',
-  '  init [--force]              create .workflow/config.json (auto-detects checks and run command)',
-  '  status [--json]             progress across 12 stages and next step (--json: for the panel)',
+  '  init [--force] [--mode lite|full]  create .workflow/config.json (auto-detects checks and run command)',
+  '  status [--json]             progress across the stages and next step (--json: for the panel)',
+  '  mode [lite|full]            show or switch mode (lite skips stages 4, 7, 8, 12, 13)',
   '  sync                        redraw the hub (README.md) progress table from markers',
   '  new <stage> [--force]       create a stage doc from its template (stage key or number)',
   '  screen <slug> "<name>"      create a wireframe screen file',
@@ -234,6 +261,7 @@ const COMMANDS = {
   init: cmdInit,
   status: cmdStatus,
   sync: cmdSync,
+  mode: cmdMode,
   new: cmdNew,
   screen: cmdScreen,
   check: cmdCheck,

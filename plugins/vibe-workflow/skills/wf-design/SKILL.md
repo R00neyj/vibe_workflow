@@ -17,6 +17,9 @@ Before starting, Read `${CLAUDE_PLUGIN_ROOT}/reference/stage-rules.md` and follo
 
 ## Steps
 
+In lite mode (no stage 4), first ask via `AskUserQuestion` for 1–2 apps or sites whose look the user likes, and derive the direction from them.
+
+
 1. **Key choices** — `AskUserQuestion` with 2–4 concrete options each, derived from the picked direction: primary color, font family, density (compact / comfortable), corner style (sharp / soft / round).
 2. **Tokens** — fill the token tables with semantic names (`color.primary`, not `blue-500`) and real values. Check text/background contrast is at least 4.5:1 and fix pairs that fail.
 3. **Components** — inventory the UI elements the screens need (from flow + spec). Only what screens use. Each row: purpose, variants, states (always include disabled / error / loading where they apply), tokens used, screens.

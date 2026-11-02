@@ -1,6 +1,6 @@
 ---
 name: wf-wireframe-review
-description: vibe-workflow stage 7 (UI). The user reviews and approves the wireframes. Collect feedback, fix the wireframes, and record each round. Use when the user says "wireframe review", "review the screens", "I checked the wireframes", "change this screen", "approve the wireframes".
+description: vibe-workflow stage 7 (UI, full mode). The user reviews and approves the wireframes. Collect feedback, fix the wireframes, and record each round. Use when the user says "wireframe review", "review the screens", "I checked the wireframes", "change this screen", "approve the wireframes".
 ---
 
 # wf-wireframe-review — 7. Wireframe review [UI]

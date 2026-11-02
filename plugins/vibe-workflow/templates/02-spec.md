@@ -9,7 +9,7 @@ status: draft
 -->
 
 > Basis: [brief](01-brief.md). Done when: every feature has acceptance criteria and at least one feature is marked core → `status: done`
-> Features marked **Core** become the tasks of the stage 9 usability test.
+> Features marked **Core** become the tasks of the stage 10 usability test.
 
 ## At a glance
 

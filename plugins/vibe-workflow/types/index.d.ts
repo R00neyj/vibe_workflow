@@ -11,6 +11,7 @@ export type Stage = {
 export type Phase = { name: string; stages: Stage[] }
 export type Progress = {
   root: string
+  mode?: string
   hub: string
   done: number
   total: number

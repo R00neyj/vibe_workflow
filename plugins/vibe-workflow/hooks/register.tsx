@@ -17,7 +17,7 @@ const PHASE_COLS = 12
 const BAR_CELLS = 6
 const REFRESH_ON = new Set(['Bash', 'Edit', 'Write', 'Skill', 'Agent'])
 
-const progress = atom({ plugin: 'vibe-workflow', key: 'progress' } as const, null, { shape: 'progress-1' })
+const progress = atom({ plugin: 'vibe-workflow', key: 'progress' } as const, null, { shape: 'progress-2' })
 const error = atom({ plugin: 'vibe-workflow', key: 'error' } as const, null, { shape: 'error-1' })
 const live = atom({ plugin: 'vibe-workflow', key: 'live' } as const, null, { shape: 'live-1' })
 const toggled = atom({ plugin: 'vibe-workflow', key: 'toggled' } as const, {}, { shape: 'toggled-1' })
@@ -53,7 +53,7 @@ function statusLine(p: Progress): string {
 }
 
 function commandText(p: Progress, err: string | null): string {
-  const lines = [`vibe-workflow progress ${p.done}/${p.total}  hub: ${p.hub}`]
+  const lines = [`vibe-workflow progress ${p.done}/${p.total}${p.mode === 'lite' ? ' (lite)' : ''}  hub: ${p.hub}`]
   for (const ph of p.phases) {
     lines.push(`[${ph.name}] ${bar(phaseDone(ph), ph.stages.length)} ${phaseDone(ph)}/${ph.stages.length}`)
     for (const s of ph.stages) lines.push(`  ${stageMark(s, p)} ${String(s.n).padStart(2)}. ${padCols(s.title, 26)}${s.label}`)
@@ -174,7 +174,7 @@ export const register: Register = on => {
 
     return (
       <Box flexDirection="column">
-        <Text bold>vibe-workflow · {p.done}/{p.total}</Text>
+        <Text bold>vibe-workflow · {p.done}/{p.total}{p.mode === 'lite' ? ' · lite' : ''}</Text>
         {p.phases.map(ph => {
           const isCur = isCurrentPhase(ph, p)
           const isDone = phaseDone(ph) === ph.stages.length

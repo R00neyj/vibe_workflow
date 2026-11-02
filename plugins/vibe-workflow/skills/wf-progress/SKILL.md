@@ -1,6 +1,6 @@
 ---
 name: wf-progress
-description: Show the current vibe-workflow progress. Prints which of the 12 stages the project is at, previous/current/next stage, and per-phase (Planning/UX/UI/Development/Release) progress, and points to the progress panel on the right of the screen. Does not run the next stage. Use when the user says "progress", "how far have we gotten", "which stage are we on", "current stage", "completion rate", "show status".
+description: Show the current vibe-workflow progress. Prints which stage the project is at, previous/current/next stage, and per-phase (Planning/UX/UI/Development/Release) progress, and points to the progress panel on the right of the screen. Does not run the next stage. Use when the user says "progress", "how far have we gotten", "which stage are we on", "current stage", "completion rate", "show status".
 ---
 
 # wf-progress — Progress status
@@ -15,9 +15,9 @@ Display only. Do not edit documents or run the next stage.
 2. Report briefly in this format:
 
 ```
-Progress 6/12 · now [UI] 7. Wireframe review → /wf-wireframe-review
-Planning ██████ 2/2 · UX ██████ 1/1 · UI █████░ 3/4 · Development ░░░░░░ 0/2 · Release ░░░░░░ 0/3
-Previous 6. Low-fi wireframe (done) · Next 8. Prototype
+Progress 6/14 (full) · now [UI] 7. Wireframe review → /wf-wireframe-review
+Planning ██████ 2/2 · UX ██████ 1/1 · UI █████░ 3/4 · Development ░░░░░░ 0/4 · Release ░░░░░░ 0/3
+Previous 6. Low-fi wireframe (done) · Next 8. Tech design
 Hub .workflow/README.md
 ```
 
