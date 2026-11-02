@@ -9,8 +9,8 @@
     {
       "name": "vibe-workflow",
       "source": "./plugins/vibe-workflow",
-      "description": "define -> plan -> review -> build -> verify 파이프라인을 스킬로 제공하고 훅으로 강제하는 바이브코딩 워크플로우",
-      "version": "0.1.0"
+      "description": "A 10-stage vibe-coding workflow: Planning → UX → UI → Development → Release. Builds one hub doc plus a wiki page per stage through skills. No blocking hooks, only a read-only progress panel.",
+      "version": "0.3.0"
     }
   ]
 }

@@ -1,0 +1,95 @@
+# Common stage rules
+
+Every `wf-*` stage skill follows this document before starting.
+
+`WFCTL` = `node "${CLAUDE_PLUGIN_ROOT}/scripts/wfctl.js"`
+
+## Document structure — hub + wiki
+
+```
+.workflow/
+├── README.md               hub. Overall flow, progress table, decision log, open questions
+├── 01-brief.md             1. Research & brief        [Planning]
+├── 02-spec.md              2. Feature spec            [Planning]
+├── 03-flow.md              3. UX flowchart            [UX]
+├── 04-wireframe/           4. Low-fi wireframe        [UI]
+├── 05-wireframe-review.md  5. Wireframe review        [UI]
+├── 06-prototype.md         6. Prototype               [Development]
+├── 07-usability.md         7. Usability test          [Development]
+├── 08-prerelease.md        8. Pre-release             [Release]
+├── 09-internal-test.md     9. Internal test           [Release]
+├── 09-tester-guide.md         Guide handed to testers
+└── 10-release.md           10. Release                [Release]
+```
+
+- The hub (`README.md`) is the only entry point. Opening it tells the user how far along things are.
+- **Never write by hand** between `<!-- wf:index:begin -->` and `<!-- wf:index:end -->` in the hub. `WFCTL sync` redraws it.
+- Skills update the hub's Overview, Decision log, and Open questions sections directly.
+
+## Readable documents
+
+The user must be able to read a document in 1-2 minutes. A long document goes unread, and an unread document might as well not exist.
+
+- Right below the `> Done when` line in the template, put an **`At a glance` summary of at most 3 lines** (section `## At a glance`). Busy users read only this.
+- Tables and lists over prose. One item per line. No background, generalities, or repetition.
+- If a template section does not apply, end it with a one-line `N/A` or delete the section.
+- Length budget (body only; split when exceeded):
+
+| Document | Budget |
+| --- | --- |
+| Hub README.md | One screen (about 60 lines). If the Decision log passes 30 lines, move older lines to `decisions.md` and link it |
+| Brief | About 80 lines |
+| Feature spec | At most 10 lines per feature. Beyond 8 features, split details into `02-spec/F-xx.md` subpages and link them from the list table |
+| Flow | At most 20 mermaid nodes. Beyond that, split into per-task subflows |
+| Others | About 60 lines |
+
+- Subpages also carry a `[← Parent document](../02-spec.md)` nav line at the top.
+
+## Doc involvement level — docs never block code
+
+Vibe-coding speed comes first. Documents are a **tool for aligning direction**, not a permit.
+When the user wants something, do it first and catch the docs up afterward.
+
+| Change size | Examples | Involvement |
+| --- | --- | --- |
+| small | Copy, styling, bug fixes, refactoring | Leave docs alone. Just do it |
+| medium | Add/change a feature, add a screen | Implement right away. After finishing, reflect **one line** in the relevant doc (add a spec table row, add to the screen list) + 1 Decision log line. Do not ask |
+| large | Change a core feature or core task, change target users or goals, implement an out-of-scope item | Before implementing, `AskUserQuestion` **once**: "Update planning, then proceed / Implement now, docs later". Proceed either way |
+
+- On finding a doc/code mismatch, do not stop work. Leave one line in hub Open questions and continue.
+- Do the doc catch-up in one batch when crossing stages (especially 7 → 8, 9 → 10).
+- Never refuse or defer a user request because "the docs must be fixed first".
+
+## Wiki link rules
+
+- When mentioning another document, **always use a relative link.** Never write a bare file name.
+- Link features by ID: `[F-01](02-spec.md#f-01)`. When adding a new feature, also add an `<a id="f-xx"></a>` anchor in `02-spec.md`.
+- Link screens by slug: `[home](04-wireframe/home.html)`.
+- Link task/issue IDs (T1, U-01, I-01) to the document that defines them.
+- Do not delete the nav line at the top of a document (`← Overall flow · Previous · Next`).
+
+## Progress
+
+- Progress is derived only from each document's `<!-- wf:<stage> status: ... -->` marker. Never store "done" anywhere else.
+- Done values: `done` for most. Review `approved`, pre-release `deployed`, release `released`.
+- Change a marker `status` to a done value **only after the user confirms via AskUserQuestion.**
+
+## Common stage procedure
+
+1. **Locate** — `WFCTL status`. If `.workflow` is missing, point to `/wf-init` and stop.
+2. **Check prerequisites** — if an earlier stage is incomplete, `AskUserQuestion`: "Do the prerequisite stage first" / "Proceed anyway". Do not block. If proceeding anyway, record it in the Decision log.
+3. **Create the document** — `WFCTL new <stage key>`. If it already exists, continue writing it; never overwrite.
+4. **Read inputs** — actually read the upstream documents the skill names. Never write without reading.
+5. **Write** — do not guess what you do not know; ask with `AskUserQuestion`. At most 4 questions at a time, with concrete options. If something stays undecided, record it in the document's assumptions section or hub Open questions.
+6. **Confirm** — summarize the result and get "Done / Needs changes" via `AskUserQuestion`.
+7. **Wrap up** — if done: set the marker status to its done value → add one Decision log line to the hub (date, stage, decision, link to evidence) → `WFCTL sync` → point to the next skill.
+
+## Going back
+
+- When editing a completed upstream document, find the downstream documents that link to it and check whether they are affected.
+- If affected, tell the user and ask via `AskUserQuestion` whether to revert the downstream document's status to `draft`.
+- Record the change in the Decision log.
+
+## Dates
+
+- Dates written in documents are local dates (`YYYY-MM-DD`). wfctl fills `{{DATE}}` in templates.
