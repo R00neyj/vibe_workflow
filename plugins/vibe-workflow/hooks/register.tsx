@@ -122,17 +122,23 @@ function skillLabel(e: { tool: string }): string | undefined {
   return name.startsWith('wf-') ? `/${name}` : undefined
 }
 
+// Turns the panel on once .workflow/config.json exists (at session start, or after wf-init creates it mid-session)
+async function activate($: EngineInterface) {
+  if (root) return
+  const cwd = await $.session.cwd()
+  const stat = await $.fs.stat(`${cwd}/.workflow/config.json`).catch(() => null)
+  if (!stat) return
+  root = cwd
+  await $.command.register({ name: COMMAND, description: 'Open the vibe-workflow progress panel and print progress across all stages' })
+  await refresh($)
+  void $.ui.open({ id: PANE, title: TITLE, columns: PANE_COLUMNS })
+  $.clock.every(REFRESH_EVERY_MS, () => refresh($))
+}
+
 export const register: Register = on => {
   on('session.start', async ($, e, next) => {
     const ran = await next(e)
-    const cwd = await $.session.cwd()
-    const stat = await $.fs.stat(`${cwd}/.workflow/config.json`).catch(() => null)
-    if (!stat) return ran
-    root = cwd
-    await $.command.register({ name: COMMAND, description: 'Open the vibe-workflow progress panel and print progress across 12 stages' })
-    await refresh($)
-    void $.ui.open({ id: PANE, title: TITLE, columns: PANE_COLUMNS })
-    $.clock.every(REFRESH_EVERY_MS, () => refresh($))
+    await activate($)
     return ran
   })
 
@@ -150,7 +156,9 @@ export const register: Register = on => {
     const label = root ? skillLabel(e) : undefined
     if (label) await update($, live, () => ({ label, at: Date.now() }) as Live)
     const ran = await next(e)
-    if (root && REFRESH_ON.has(e.tool)) schedule($)
+    if (!REFRESH_ON.has(e.tool)) return ran
+    if (root) schedule($)
+    else await activate($)
     return ran
   })
 

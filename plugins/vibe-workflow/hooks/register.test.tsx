@@ -24,15 +24,16 @@ const PANE = {
   },
 } as const
 
-function engine(on: any, hasWorkflow: boolean, onRegister = () => {}) {
+function engine(on: any, hasWorkflow: boolean | (() => boolean), onRegister = () => {}) {
+  const has = () => (typeof hasWorkflow === 'function' ? hasWorkflow() : hasWorkflow)
   on('command.register', () => { onRegister(); return { value: { command: 'progress' } } })
-  on('session.cwd', () => ({ value: hasWorkflow ? '/p' : '/x' }))
+  on('session.cwd', () => ({ value: has() ? '/p' : '/x' }))
   on('ui.status', () => ({ value: undefined }))
   on('ui.panes', () => ({ value: [] }))
   on('clock.every', () => ({ value: { cancel() {} } }))
   on('ui.open', () => ({ value: { isPlaced: true } }))
   on('session.start', (_: unknown, e: { cwd: string }) => ({ cwd: e.cwd }))
-  on('fs.stat', () => { if (!hasWorkflow) throw new Error('ENOENT'); return { value: { kind: 'file', size: 1 } } })
+  on('fs.stat', () => { if (!has()) throw new Error('ENOENT'); return { value: { kind: 'file', size: 1 } } })
   on('process.run', () => ({ value: { exitCode: 0, stdout: JSON.stringify(STATUS), stderr: '' } }))
 }
 
@@ -52,6 +53,18 @@ test('/progress returns the stage list as text', async ($, on) => {
   const out = await $.command.run({ command: 'progress' })
   expect(out.text).toContain('Now: 3. UX flowchart → /wf-s3')
   expect(out.text).toContain('[Planning] ██████ 2/2')
+})
+
+test('turns on after .workflow is created mid-session', async ($, on) => {
+  let exists = false
+  let registered = 0
+  engine(on, () => exists, () => { registered++ })
+  on('tool.call', () => ({ result: { output: 'ok' } }))
+  await $.session.start({ cwd: '/p', surface: 'terminal', isInteractive: true })
+  expect(registered).toBe(0)
+  exists = true
+  await $.tool.call({ tool: 'Bash', input: { command: 'node wfctl.js init' } })
+  expect(registered).toBe(1)
 })
 
 test('registers nothing without .workflow', async ($, on) => {
