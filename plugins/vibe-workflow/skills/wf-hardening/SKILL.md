@@ -1,9 +1,9 @@
 ---
 name: wf-hardening
-description: vibe-workflow stage 11 (Development). Turn the tested prototype into release-quality code — verify every acceptance criterion with evidence, then harden error handling, edge cases, loading states, security, accessibility, performance and design consistency. Use when the user says "harden", "verify features", "check acceptance criteria", "QA", "is it ready for release", "edge cases", "clean up before release".
+description: vibe-workflow stage 12 (Development). Turn the tested prototype into release-quality code — verify every acceptance criterion with evidence, then harden error handling, edge cases, loading states, security, accessibility, performance and design consistency. Use when the user says "harden", "verify features", "check acceptance criteria", "QA", "is it ready for release", "edge cases", "clean up before release".
 ---
 
-# wf-hardening — 11. Hardening & verification [Development]
+# wf-hardening — 12. Hardening & verification [Development]
 
 Before starting, Read `${CLAUDE_PLUGIN_ROOT}/reference/stage-rules.md` and follow the common procedure. Stage key: `hardening`.
 Usability proved people can use it; this stage proves it works and holds up.
@@ -11,7 +11,7 @@ Usability proved people can use it; this stage proves it works and holds up.
 ## Input
 
 - Feature spec (`.workflow/02-spec.md`) — acceptance criteria and exceptions per feature
-- Tech design (`.workflow/08-tech.md`, full mode) — integrations and their failure handling
+- Tech design (`.workflow/09-tech.md`, full mode) — integrations and their failure handling
 - `DESIGN.md` — tokens and components, for the design consistency check
 - The code (`git diff` since the prototype started, or the whole app)
 

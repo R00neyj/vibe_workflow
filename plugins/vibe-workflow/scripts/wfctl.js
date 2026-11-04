@@ -248,7 +248,7 @@ const HELP = [
   '',
   '  init [--force] [--mode lite|full]  create .workflow/config.json (auto-detects checks and run command)',
   '  status [--json]             progress across the stages and next step (--json: for the panel)',
-  '  mode [lite|full]            show or switch mode (lite skips stages 4, 7, 8, 12, 13)',
+  '  mode [lite|full]            show or switch mode (lite skips stages 4, 7, 8, 9, 13, 14)',
   '  sync                        redraw the hub (README.md) progress table from markers',
   '  new <stage> [--force]       create a stage doc from its template (stage key or number)',
   '  screen <slug> "<name>"      create a wireframe screen file',

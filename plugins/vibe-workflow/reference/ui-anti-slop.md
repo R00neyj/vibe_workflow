@@ -1,7 +1,7 @@
 # UI anti-slop checklist
 
 "AI slop" = the default look a model produces when nobody decides: the same fonts, gradients, cards and copy on every product.
-Read this in stage 4 (references), 5 (DESIGN.md), 9 (prototype design check) and 11 (hardening), and before any UI fix.
+Read this in stage 4 (references), 5 (DESIGN.md), 8 (styled key screens), 10 (prototype design check) and 12 (hardening), and before any UI fix.
 
 **Rule:** a pattern below is allowed only when `DESIGN.md` lists it under `Deliberate exceptions` with a reason tied to this product. Otherwise replace it with the alternative.
 Taste comes from the product's own domain (its users, content, materials), not from what looks "modern".
@@ -82,7 +82,7 @@ Taste comes from the product's own domain (its users, content, materials), not f
 - Icon-only buttons without an accessible name; inputs without labels
 - Status shown by colour only; tap targets under 44px
 
-## Detection (hardening, stage 11)
+## Detection (hardening, stage 12)
 
 Search the UI source; every hit is fixed or listed as a deliberate exception.
 

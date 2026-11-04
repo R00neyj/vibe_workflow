@@ -16,7 +16,7 @@ status: draft
 
 ## Tech choices
 
-Decided in [tech design](08-tech.md); in lite mode record them here.
+Decided in [tech design](09-tech.md); in lite mode record them here.
 
 | Item | Choice | Reason |
 | --- | --- | --- |

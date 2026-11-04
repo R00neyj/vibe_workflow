@@ -8,7 +8,7 @@ Created: {{DATE}}
 status: draft
 -->
 
-> Tester handout: [13-tester-guide.md](13-tester-guide.md). Done when: 0 `blocker` issues and a handling decision for the rest → `status: done`
+> Tester handout: [14-tester-guide.md](14-tester-guide.md). Done when: 0 `blocker` issues and a handling decision for the rest → `status: done`
 
 ## At a glance
 

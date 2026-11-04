@@ -17,20 +17,22 @@ DESIGN.md                   5. Design system — project root, living doc      [
 ├── 04-references.md        4. UI references *           [UI]
 ├── 06-wireframe/           6. Mid-fi wireframe          [UI]
 ├── 07-wireframe-review.md  7. Wireframe review *        [UI]
-├── 08-tech.md              8. Tech design *             [Development]
-├── 09-prototype.md         9. Prototype                 [Development]
-├── 10-usability.md         10. Usability test           [Development]
-├── 11-hardening.md         11. Hardening & verification [Development]
-├── 12-prerelease.md        12. Pre-release *            [Release]
-├── 13-internal-test.md     13. Internal test *          [Release]
-├── 13-tester-guide.md          Guide handed to testers
-└── 14-release.md           14. Release                  [Release]
+├── 08-ui-sample.md         8. Styled key screens *      [UI]
+├── 08-ui-sample/               tokens.css, styles.css, 1-2 screen HTML files
+├── 09-tech.md              9. Tech design *             [Development]
+├── 10-prototype.md         10. Prototype                [Development]
+├── 11-usability.md         11. Usability test           [Development]
+├── 12-hardening.md         12. Hardening & verification [Development]
+├── 13-prerelease.md        13. Pre-release *            [Release]
+├── 14-internal-test.md     14. Internal test *          [Release]
+├── 14-tester-guide.md          Guide handed to testers
+└── 15-release.md           15. Release                  [Release]
 * skipped in lite mode
 ```
 
 ## Modes
 
-`.workflow/config.json` `mode`: `full` (14 stages) or `lite` (9 stages; skips 4, 7, 8, 12, 13). Switch with `WFCTL mode <lite|full>`.
+`.workflow/config.json` `mode`: `full` (15 stages) or `lite` (9 stages; skips 4, 7, 8, 9, 13, 14). Switch with `WFCTL mode <lite|full>`.
 
 - Skipped stages are never "next" and are not counted. The skills of the stages around them absorb the essentials (each skill says how under "lite mode").
 - The next skill to point to is always the `Next:` line of `WFCTL status`, which already skips what the mode leaves out.
@@ -83,7 +85,7 @@ When the user wants something, do it first and catch the docs up afterward.
 | large | Change a core feature or core task, change target users or goals, implement an out-of-scope item | Before implementing, `AskUserQuestion` **once**: "Update planning, then proceed / Implement now, docs later". Proceed either way |
 
 - On finding a doc/code mismatch, do not stop work. Leave one line in hub Open questions and continue.
-- Do the doc catch-up in one batch when crossing stages (especially 10 → 11, 11 → 12, 13 → 14).
+- Do the doc catch-up in one batch when crossing stages (especially 11 → 12, 12 → 13, 14 → 15).
 - Never refuse or defer a user request because "the docs must be fixed first".
 
 ## Wiki link rules

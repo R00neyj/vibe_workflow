@@ -18,13 +18,14 @@ const STAGES = [
   { n: 5, key: 'design', phase: 'UI', title: 'Design system (DESIGN.md)', file: '../DESIGN.md', skill: 'wf-design', done: 'done' },
   { n: 6, key: 'wireframe', phase: 'UI', title: 'Mid-fi wireframe', file: '06-wireframe/index.html', skill: 'wf-wireframe', done: 'done' },
   { n: 7, key: 'wireframe-review', phase: 'UI', title: 'Wireframe review', file: '07-wireframe-review.md', skill: 'wf-wireframe-review', done: 'approved', lite: false },
-  { n: 8, key: 'tech', phase: 'Development', title: 'Tech design', file: '08-tech.md', skill: 'wf-tech', done: 'done', lite: false },
-  { n: 9, key: 'prototype', phase: 'Development', title: 'Prototype', file: '09-prototype.md', skill: 'wf-prototype', done: 'done' },
-  { n: 10, key: 'usability', phase: 'Development', title: 'Usability test', file: '10-usability.md', skill: 'wf-usability', done: 'done' },
-  { n: 11, key: 'hardening', phase: 'Development', title: 'Hardening & verification', file: '11-hardening.md', skill: 'wf-hardening', done: 'done' },
-  { n: 12, key: 'prerelease', phase: 'Release', title: 'Pre-release', file: '12-prerelease.md', skill: 'wf-prerelease', done: 'deployed', lite: false },
-  { n: 13, key: 'internal-test', phase: 'Release', title: 'Internal test', file: '13-internal-test.md', skill: 'wf-internal-test', done: 'done', lite: false },
-  { n: 14, key: 'release', phase: 'Release', title: 'Release', file: '14-release.md', skill: 'wf-release', done: 'released' },
+  { n: 8, key: 'ui-sample', phase: 'UI', title: 'Styled key screens', file: '08-ui-sample.md', skill: 'wf-ui-sample', done: 'done', lite: false },
+  { n: 9, key: 'tech', phase: 'Development', title: 'Tech design', file: '09-tech.md', skill: 'wf-tech', done: 'done', lite: false },
+  { n: 10, key: 'prototype', phase: 'Development', title: 'Prototype', file: '10-prototype.md', skill: 'wf-prototype', done: 'done' },
+  { n: 11, key: 'usability', phase: 'Development', title: 'Usability test', file: '11-usability.md', skill: 'wf-usability', done: 'done' },
+  { n: 12, key: 'hardening', phase: 'Development', title: 'Hardening & verification', file: '12-hardening.md', skill: 'wf-hardening', done: 'done' },
+  { n: 13, key: 'prerelease', phase: 'Release', title: 'Pre-release', file: '13-prerelease.md', skill: 'wf-prerelease', done: 'deployed', lite: false },
+  { n: 14, key: 'internal-test', phase: 'Release', title: 'Internal test', file: '14-internal-test.md', skill: 'wf-internal-test', done: 'done', lite: false },
+  { n: 15, key: 'release', phase: 'Release', title: 'Release', file: '15-release.md', skill: 'wf-release', done: 'released' },
 ]
 
 const MODES = ['full', 'lite']
@@ -33,7 +34,7 @@ const MODES = ['full', 'lite']
 const STAGE_TEMPLATES = {
   'design': [['DESIGN.md', '../DESIGN.md']],
   'wireframe': [['06-wireframe/index.html', '06-wireframe/index.html'], ['06-wireframe/wireframe.css', '06-wireframe/wireframe.css']],
-  'internal-test': [['13-internal-test.md', '13-internal-test.md'], ['13-tester-guide.md', '13-tester-guide.md']],
+  'internal-test': [['14-internal-test.md', '14-internal-test.md'], ['14-tester-guide.md', '14-tester-guide.md']],
 }
 
 const DEFAULT_CONFIG = {

@@ -22,7 +22,7 @@ check_on:
 - [ ] Brief success criteria are measurable (checked again on `check_on`)
 - [ ] All Must features implemented
 - [ ] All core usability test tasks succeeded
-- [ ] [Hardening](11-hardening.md): every Must acceptance criterion verified, no open high issue
+- [ ] [Hardening](12-hardening.md): every Must acceptance criterion verified, no open high issue
 - [ ] 0 blocker issues in the internal test (full mode)
 - [ ] All `wfctl check` items pass
 

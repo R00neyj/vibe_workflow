@@ -22,4 +22,4 @@ Never approve on the user's behalf. Even if no issues seem to exist, always ask 
 
 ## Done
 
-On approval: `status: approved`, write the user in `reviewer` → Decision log → `WFCTL sync` → `/wf-prototype`. If changes are requested, the decision is `changes-requested`.
+On approval: `status: approved`, write the user in `reviewer` → Decision log → `WFCTL sync` → `/wf-ui-sample`. If changes are requested, the decision is `changes-requested`.

@@ -1,15 +1,15 @@
 ---
 name: wf-usability
-description: vibe-workflow stage 10 (Development). Run a prototype usability test. Derive tasks from the core features in the brief and feature spec, give only the goal with no steps, investigate where the user got stuck, then fix and retest. Use when the user says "usability test", "I'll test it", "what's awkward when I use it", "user test", "test the prototype".
+description: vibe-workflow stage 11 (Development). Run a prototype usability test. Derive tasks from the core features in the brief and feature spec, give only the goal with no steps, investigate where the user got stuck, then fix and retest. Use when the user says "usability test", "I'll test it", "what's awkward when I use it", "user test", "test the prototype".
 ---
 
-# wf-usability — 10. Usability test [Development]
+# wf-usability — 11. Usability test [Development]
 
 Before starting, Read `${CLAUDE_PLUGIN_ROOT}/reference/stage-rules.md` and follow the common procedure. Stage key: `usability`.
 
 ## Principles
 
-- **Expectations:** this is a self-test by the person who built the product. It catches obvious problems only; real usability findings come from other people in the internal test (stage 13). In lite mode there is no internal test — suggest running these same task prompts with at least one other person.
+- **Expectations:** this is a self-test by the person who built the product. It catches obvious problems only; real usability findings come from other people in the internal test (stage 14). In lite mode there is no internal test — suggest running these same task prompts with at least one other person.
 
 - **Give the goal only. Never give the method.** Do not put menu names, button names, screen names, or order into task prompts.
 - If the user asks how during the test, do not answer right away; first record "Where did you look first?". If they stay stuck, help, and log the result as `success with help`.

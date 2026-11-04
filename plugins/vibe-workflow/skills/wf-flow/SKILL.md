@@ -13,7 +13,7 @@ Before starting, Read `${CLAUDE_PLUGIN_ROOT}/reference/stage-rules.md` and follo
 
 ## Steps
 
-1. **Screen list** — derive the screens needed to perform the features. Give each a slug (lowercase letters, digits, `-`) and links to related features. The slug becomes the stage 4 file name.
+1. **Screen list** — derive the screens needed to perform the features. Give each a slug (lowercase letters, digits, `-`) and links to related features. The slug becomes the stage 6 file name.
 2. **Overall flow** — mermaid `flowchart`. Entry points, major branches, goal-achievement points. At most 20 nodes; split by task beyond that.
 3. **Per-core-task path** — for each core feature: start screen → path → one line of exception branches.
 4. Check: Must features missing from the flow, unreachable screens, dead-end screens. Show any found to the user.
